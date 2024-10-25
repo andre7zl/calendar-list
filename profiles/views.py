@@ -14,5 +14,3 @@ class CreateUser(CreateView):
         context['titulo'] = "Registro de novo usuário"
         context['botão'] = "Cadastrar"
         return context
-
-    

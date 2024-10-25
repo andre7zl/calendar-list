@@ -4,7 +4,9 @@ from .models import Turma
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .forms import TurmaForm
 from django.contrib.auth.models import Group
-
+from django.urls import reverse_lazy
+from django.views.generic import DeleteView
+from .models import Turma
 
 class TurmaCreateView(CreateView):
     model = Turma
@@ -26,17 +28,12 @@ class ListaTurmas(ListView):
     template_name = 'classes/lista_turmas.html'
     context_object_name = 'turmas'
 
-from django.contrib.auth.models import Group
-from django.urls import reverse_lazy
-from django.views.generic import DeleteView
-from .models import Turma
-
 class TurmaDeleteView(DeleteView):
     model = Turma
     template_name = 'classes/deletar_turma.html'  
     success_url = reverse_lazy('lista-turmas')
 
-    def delete(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         turma = self.get_object()
         group_name = f"{turma.nome}_{turma.serie}_{turma.turno}_{turma.curso}"
         

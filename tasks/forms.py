@@ -43,3 +43,10 @@ class TaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        task = super().save(commit=False)
+        task.id_turma = self.cleaned_data['turma'].id  # Armazena o ID da turma selecionada
+        if commit:
+            task.save()
+        return task

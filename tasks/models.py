@@ -13,6 +13,7 @@ class Task(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
+    id_turma = models.PositiveIntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

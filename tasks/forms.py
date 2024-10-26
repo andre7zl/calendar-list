@@ -2,11 +2,14 @@ from django import forms
 from .models import Task
 from django.forms import DateInput
 from django import forms
+from classes import models
 
 class TaskForm(forms.ModelForm):
+    turma = forms.ModelChoiceField(queryset=models.Turma.objects.all(), required=True)
     class Meta:
         model = Task
-        fields = ["title", "description", "start_date", "end_date", "start_time", "end_time"]
+        fields = ["title", "description", "turma", "start_date", "end_date", "start_time", "end_time"]
+
         widgets = {
             "title": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Insira o título do evento"}
@@ -15,6 +18,12 @@ class TaskForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "placeholder": "Insira a descrição do evento",
+                }
+            ),
+            "turma": forms.Select(
+                attrs={
+                    "class": "form-select",  # Adicionando a classe do Bootstrap
+                    "aria-label": "Selecionar turma"  # Para acessibilidade
                 }
             ),
             "start_date": DateInput(

@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 from .models import Turma
+from braces.views import LoginRequiredMixin, GroupRequiredMixin
 
 class TurmaCreateView(CreateView):
     model = Turma
@@ -23,7 +24,9 @@ class TurmaCreateView(CreateView):
         
         return response
 
-class ListaTurmas(ListView):
+class ListaTurmas(GroupRequiredMixin, LoginRequiredMixin, ListView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
     model = Turma
     template_name = 'classes/lista_turmas.html'
     context_object_name = 'turmas'

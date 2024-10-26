@@ -8,6 +8,6 @@ class UsuarioForm(UserCreationForm):
     turma = forms.ModelChoiceField(queryset=models.Turma.objects.all(), required=True)
     class Meta:
         model = User
-        fields = fields = ['username', 'email', 'turma', 'password1', 'password2']
+        fields = ['username', 'email', 'turma', 'password1', 'password2']
 
     

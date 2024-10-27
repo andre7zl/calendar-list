@@ -5,4 +5,4 @@ from django.contrib.auth.models import AbstractUser
 class CustomUser(AbstractUser):
     id = models.BigAutoField(primary_key=True)
 
-    id_turma = models.PositiveIntegerField(blank=True, null=True)
+    turma = models.ForeignKey('classes.Turma', on_delete=models.SET_NULL, blank=True, null=True)

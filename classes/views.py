@@ -25,7 +25,7 @@ class TurmaCreateView(CreateView):
         return response
 
 class ListaTurmas(GroupRequiredMixin, LoginRequiredMixin, ListView):
-    group_required = u"Administrador"
+    group_required = u"Docente"
     login_url = reverse_lazy('login')
     model = Turma
     template_name = 'classes/lista_turmas.html'

@@ -12,7 +12,9 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin
 
 
 
-class TaskListView(ListView):
+class TaskListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
+    group_required = u"Docente"
+    login_url = reverse_lazy('login')
     model = Task
     template_name = 'tasks/list.html'
     context_object_name = 'tasks'
@@ -29,7 +31,7 @@ class TaskDetailView(DetailView):
 
 
 class TaskCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
-    group_required = u"Administrador"
+    group_required = u"Docente"
     login_url = reverse_lazy('login')
     model = Task
     form_class = TaskForm
@@ -47,7 +49,7 @@ class TaskCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
 
 
 class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
-    group_required = u"Administrador"
+    group_required = u"Docente"
     login_url = reverse_lazy('login')
     model = Task
     form_class = TaskForm
@@ -60,7 +62,7 @@ class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
 
 
 class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin,  DeleteView):
-    group_required = u"Administrador"
+    group_required = u"Docente"
     login_url = reverse_lazy('login')
     model = Task
     template_name = 'tasks/deletetask.html'  # crie um template para confirmar a exclusão
@@ -85,12 +87,16 @@ def home(request):
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
 
-        if request.user.groups.filter(name='discente').exists():
-            # Filtra tarefas somente para o usuário
-            tasks = Task.objects.filter(usuario=request.user)
+        user_turma = request.user.turma
+
+        is_discente = request.user.groups.filter(name='Discente').exists()
+
+        if is_discente:
+            # Se for um discente, filtra as tarefas de todos os usuários do grupo
+            tasks = Task.objects.filter(turma=user_turma)
         else:
-            # Recupera todas as tarefas
-            tasks = Task.objects.filter(usuario=self.request.user)
+            # Se não for um discente, filtra apenas as tarefas criadas pelo usuário
+            tasks = Task.objects.filter(usuario=request.user)
 
         events = []
 

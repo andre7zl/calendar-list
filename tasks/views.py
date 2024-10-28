@@ -22,8 +22,6 @@ class TaskListView(ListView):
         self.tasks = Task.objects.filter(usuario=self.request.user)
         return self.tasks
 
-
-
 class TaskDetailView(DetailView):
     model = Task
     template_name = 'tasks/task.html'
@@ -86,7 +84,12 @@ def home(request):
 
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
-        tasks = Task.objects.all()
+
+        user_turma = request.user.turma  # Certifique-se de que 'turma' está acessível a partir do usuário
+
+        tasks = Task.objects.filter(turma=user_turma)
+        events = []
+
         events = []
 
         for task in tasks:

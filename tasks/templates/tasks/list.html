@@ -30,7 +30,9 @@
             <tr>
                 <th>Tarefa</th>
                 <th>Data de Início</th>
+                <th>Data de Término</th>
                 <th>Turma</th>
+                <th>Por:</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -39,7 +41,9 @@
             <tr class="task-item">
                 <td><a href="/task/{{ task.id }}" class="text-decoration-none text-dark">{{ task.title }}</a></td>
                 <td style="color: #6c757d;">{{ task.start_date }}</td>
+                <td style="color: #6c757d;" >{{task.end_date}}</td>
                 <td style="color: #6c757d;" >{{ task.turma.nome }}</td>
+                <td style="color: #6c757d;"> {{ task.usuario.username }} </td>
                 <td>
                     <a href="{% url 'delete-task' task.id %}" class="text-danger me-2"><i class="fas fa-trash"></i></a>
                     <a href="{% url 'edit-task' task.id %}" class="text-warning"><i class="fas fa-edit"></i></a>

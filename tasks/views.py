@@ -18,6 +18,11 @@ class TaskListView(ListView):
     context_object_name = 'tasks'
     ordering = '-created_at'
 
+    def get_queryset(self):
+        self.tasks = Task.objects.filter(usuario=self.request.user)
+        return self.tasks
+
+
 
 class TaskDetailView(DetailView):
     model = Task
@@ -34,9 +39,13 @@ class TaskCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('task-list')
 
     def form_valid(self, form):
-        task = form.save(commit=False)
-        task.done = 'doing'  # ajuste conforme necessário
-        return super().form_valid(form)
+
+        form.instance.usuario = self.request.user
+
+        url =  super().form_valid(form)
+
+
+        return url
 
 
 class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):

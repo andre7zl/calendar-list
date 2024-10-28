@@ -85,10 +85,12 @@ def home(request):
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
 
-        user_turma = request.user.turma  # Certifique-se de que 'turma' está acessível a partir do usuário
-
-        tasks = Task.objects.filter(turma=user_turma)
-        events = []
+        if request.user.groups.filter(name='discente').exists():
+            # Filtra tarefas somente para o usuário
+            tasks = Task.objects.filter(usuario=request.user)
+        else:
+            # Recupera todas as tarefas
+            tasks = Task.objects.filter(usuario=self.request.user)
 
         events = []
 

@@ -5,7 +5,9 @@
 {% block content %}
 <div class="offset-1 col-10 list-div">
     <h1>{{task.title}}</h1>
+    <p>Turma:</p><p>{{task.turma.nome}}</p>
     <p>{{task.description}}</p>
+    <p>Criado por:</p><p>{{task.usuario}}</p>
     <p class="fs-6 text-body-secondary" >{{task.date}}</p>
 </div>
 {% endblock %}

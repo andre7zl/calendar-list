@@ -2,6 +2,8 @@
 
 {% block title %}{{task.title}}{% endblock %}
 
+{% load static %}
+
 {% block content %}
 <div class="offset-1 col-10 list-div">
     <h1>Editando '{{task.title}}'</h1>
@@ -11,4 +13,20 @@
         <input type="submit" class="btn btn-success" value="Editar Tarefa">
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/jquery.mask.min.js' %}"></script>  
+
+    <script>
+
+        $(document).ready(function(){
+
+            $('#id_start_date').mask('00/00/0000');
+            $('#id_end_date').mask('00/00/0000');
+            $('#id_start_time').mask('00:00:00');
+            $('#id_end_time').mask('00:00:00');
+        })
+
+    </script>
 {% endblock %}

@@ -9,9 +9,7 @@
         height: 100%;            
     }
 
-    #calendar {
-        max-width: 1000px;         
-        max-height: 100%;        
+    #calendar {      
         width: 100%;            
         overflow-y: auto;         
     }
@@ -21,7 +19,7 @@
     <div class="col-md-3">
         <h5>Eventos do dia:</h5>
         {% for event in events_today %}
-            <div class="card mb-2" style="width: 16rem;">
+            <div class="card mb-2" style="width: 95%;">
                 <div class="card-body">
                     <h5 class="card-title">{{ event.title }}</h5>
                     <p class="card-text">{{ event.description }}</p>

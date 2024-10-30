@@ -77,23 +77,25 @@ class CalendarView(TemplateView):
     template_name = 'tasks/calendar.html'
 
     def get_context_data(self, **kwargs):
-
         user_turma = getattr(self.request.user, 'turma', None)
-
         context = super().get_context_data(**kwargs)
-
+        is_discente = self.request.user.groups.filter(name='Discente').exists()
         today = timezone.localdate()
-
-        events_today = Task.objects.filter(
-            turma=user_turma,
-            start_date__lte=today,
-            end_date__gte=today
-        )
+        if is_discente and user_turma:
+            events_today = Task.objects.filter(
+                turma=user_turma,
+                start_date__lte=today,
+                end_date__gte=today
+            )
+        
+        else:
+            events_today = Task.objects.filter(
+                start_date__lte=today,
+                end_date__gte=today
+            )
 
         context['events_today'] = events_today
-
         return context
-
 
 
 def home(request):
@@ -113,7 +115,7 @@ class TaskEventsView(View):
             tasks = Task.objects.filter(turma=user_turma)
         else:
             # Se não for um discente, filtra apenas as tarefas criadas pelo usuário
-            tasks = Task.objects.filter(usuario=request.user)
+            tasks = Task.objects.all()
 
         events = []
 

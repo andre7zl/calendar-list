@@ -9,8 +9,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from django.views import View
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
-
-
+from django.views.generic import TemplateView
+from django.utils import timezone
 
 class TaskListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     group_required = u"Docente"
@@ -73,10 +73,27 @@ class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin,  DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class CalendarView(TemplateView):
+    template_name = 'tasks/calendar.html'
 
+    def get_context_data(self, **kwargs):
 
-def calendar(request):
-    return render(request, 'tasks/calendar.html')
+        user_turma = getattr(self.request.user, 'turma', None)
+
+        context = super().get_context_data(**kwargs)
+
+        today = timezone.localdate()
+
+        events_today = Task.objects.filter(
+            turma=user_turma,
+            start_date__lte=today,
+            end_date__gte=today
+        )
+
+        context['events_today'] = events_today
+
+        return context
+
 
 
 def home(request):

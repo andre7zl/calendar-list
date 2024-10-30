@@ -18,7 +18,23 @@
 </style>
 
 <div id="calendar-container">
-    <div id="calendar"></div>
+    <div class="col-md-3">
+        <h5>Eventos do dia:</h5>
+        {% for event in events_today %}
+            <div class="card mb-2" style="width: 16rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.title }}</h5>
+                    <p class="card-text">{{ event.description }}</p>
+                    <a href="/task/{{ event.id }}" class="btn btn-primary">Ver Detalhes</a>
+                </div>
+            </div>
+        {% empty %}
+            <p>Não há eventos para hoje.</p>
+        {% endfor %}
+    </div>    
+    <div class="col-md-9">
+        <div id="calendar"></div>
+    </div>
 </div>
 
 <script src="{% static 'fullcalendar/dist/index.global.js' %}"></script>

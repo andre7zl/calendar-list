@@ -49,6 +49,14 @@
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
+            locale: 'pt-br',
+            buttonText: {
+            today: 'Hoje',
+            month: 'Mês',
+            week: 'Semana',
+            day: 'Dia',
+            list: 'Agenda'
+            },
             events: '/api/tasks/',  // Esta URL deve retornar os eventos do seu backend Django
             eventClick: function(info) {
                 var taskId = info.event.id;  // Supondo que você esteja passando a ID do evento no campo `id` da resposta JSON
@@ -58,6 +66,12 @@
                 window.location.href = taskUrl;
             },
             displayEventTime: true,
+            headerToolbar: {
+                locale: 'pt-br',
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
         });
         calendar.render();
     });

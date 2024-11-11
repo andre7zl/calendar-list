@@ -46,34 +46,58 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
+        var turmaSelect = document.getElementById('turma-select');
+
+        function fetchEvents(turmaId) {
+            var url = '/api/tasks/';
+            if (turmaId) {
+                url += '?turma_id=' + turmaId;
+            }
+
+            calendar.removeAllEvents();
+            calendar.refetchEvents();
+        }
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'pt-br',
             buttonText: {
-            today: 'Hoje',
-            month: 'Mês',
-            week: 'Semana',
-            day: 'Dia',
-            list: 'Agenda'
+                today: 'Hoje',
+                month: 'Mês',
+                week: 'Semana',
+                day: 'Dia',
+                list: 'Agenda'
             },
-            events: '/api/tasks/',  // Esta URL deve retornar os eventos do seu backend Django
-            eventClick: function(info) {
-                var taskId = info.event.id;  // Supondo que você esteja passando a ID do evento no campo `id` da resposta JSON
-                var taskUrl = '/task/' + taskId;  // Cria a URL para redirecionar
+            events: function(fetchInfo, successCallback, failureCallback) {
+                var turmaId = turmaSelect.value;
+                var url = '/api/tasks/';
 
-                // Redireciona para a página de detalhes da tarefa
-                window.location.href = taskUrl;
+                if (turmaId) {
+                    url += '?turma_id=' + turmaId;
+                }
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(events => successCallback(events))
+                    .catch(error => failureCallback(error));
+            },
+            eventClick: function(info) {
+                var taskId = info.event.id;
+                window.location.href = '/task/' + taskId;
             },
             displayEventTime: true,
             headerToolbar: {
-                locale: 'pt-br',
                 left: 'prev,next today',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
         });
+
         calendar.render();
+
+        turmaSelect.addEventListener('change', function() {
+            fetchEvents(turmaSelect.value);
+        });
     });
 </script>
 

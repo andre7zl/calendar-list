@@ -106,20 +106,19 @@ def home(request):
 
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
-
+        turma_id = request.GET.get('turma_id', None)
         user_turma = request.user.turma
-
         is_discente = request.user.groups.filter(name='Discente').exists()
 
-        if is_discente:
-            # Se for um discente, filtra as tarefas de todos os usuários do grupo
+        if turma_id:
+            tasks = Task.objects.filter(turma_id=turma_id)
+        elif is_discente and user_turma:
             tasks = Task.objects.filter(turma=user_turma)
         else:
-            # Se não for um discente, filtra apenas as tarefas criadas pelo usuário
             tasks = Task.objects.all()
 
         events = []
-
+        
         for task in tasks:
             if task.start_date and task.start_time and task.end_date and task.end_time:
                 start_datetime = datetime.combine(task.start_date, task.start_time)

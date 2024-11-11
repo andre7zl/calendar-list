@@ -17,6 +17,13 @@
 
 <div id="calendar-container">
     <div class="col-md-3">
+        <select id="turma-select" class="form-select" aria-label="Selecionar Turma" style="width: 95%;">
+            <option value="" selected>Selecione a Turma</option>
+            {% for turma in turmas %}
+                <option value="{{ turma.id }}">{{ turma.nome }}</option>
+            {% endfor %}
+        </select>
+        <hr class="thin-line mx-auto mt-4" style="width: 80%;">
         <h5>Eventos do dia:</h5>
         {% for event in events_today %}
             <div class="card mb-2" style="width: 95%;">

@@ -11,6 +11,7 @@ from django.views import View
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from django.views.generic import TemplateView
 from django.utils import timezone
+from classes.models import Turma
 
 class TaskListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     group_required = u"Docente"
@@ -95,8 +96,8 @@ class CalendarView(TemplateView):
             )
 
         context['events_today'] = events_today
+        context['turmas'] = Turma.objects.all()
         return context
-
 
 def home(request):
     return render(request, 'tasks/home.html')

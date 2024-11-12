@@ -19,7 +19,7 @@
     <div class="col-md-3">
         <h5>Calendário da Turma:</h5>
         <select id="turma-select" class="form-select" aria-label="Selecionar Turma" style="width: 95%;">
-            <option value="" selected>Selecione a Turma</option>
+            <option value="" selected>Todas as turmas</option>
             {% for turma in turmas %}
                 <option value="{{ turma.id }}">{{ turma.nome }}</option>
             {% endfor %}

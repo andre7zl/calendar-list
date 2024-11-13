@@ -132,3 +132,33 @@ class TaskEventsView(View):
                 })
 
         return JsonResponse(events, safe=False)
+    
+
+class EventCountView(LoginRequiredMixin,TemplateView):
+    login_url = reverse_lazy('login')
+    template_name = 'tasks/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        today = timezone.localdate()
+        start_of_week = today
+        end_of_week = today + timedelta(days=(6 - today.weekday()))
+
+        is_discente = user.groups.filter(name='Discente').exists()
+        user_turma = getattr(user, 'turma', None) if is_discente else None
+
+        if is_discente and user_turma:
+            tasks_today = Task.objects.filter(turma=user_turma, start_date__lte=today, end_date__gte=today)
+            tasks_week = Task.objects.filter(turma=user_turma, start_date__gte=today, end_date__lte=end_of_week)
+            total_tasks = Task.objects.filter(turma=user_turma, start_date__gte=today)
+        else:
+            tasks_today = Task.objects.filter(start_date__lte=today, end_date__gte=today)
+            tasks_week = Task.objects.filter(start_date__gte=today, end_date__lte=end_of_week)
+            total_tasks = Task.objects.filter(start_date__gte=today)
+
+        context['tasks_today_count'] = tasks_today.count()
+        context['tasks_week_count'] = tasks_week.count()
+        context['total_tasks_count'] = total_tasks.count()
+
+        return context

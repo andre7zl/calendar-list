@@ -130,6 +130,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 AUTH_USER_MODEL = 'profiles.CustomUser'
 
 # auteticação
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL =  'login'

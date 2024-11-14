@@ -164,12 +164,13 @@ class EventCountView(LoginRequiredMixin,TemplateView):
             tasks_today = Task.objects.filter(turma=self.request.user.turma, start_date__lte=today, end_date__gte=today)
             tasks_week = Task.objects.filter(turma=self.request.user.turma, start_date__gte=today, end_date__lte=end_of_week)
             total_tasks = Task.objects.filter(turma=self.request.user.turma, start_date__gte=today)
+            context['tasks'] = Task.objects.filter(turma=self.request.user.turma)
             
         if is_docente:
             tasks_today = Task.objects.filter(usuario=self.request.user, start_date__lte=today, end_date__gte=today)
             tasks_week = Task.objects.filter(usuario=self.request.user, start_date__gte=today, end_date__lte=end_of_week)
             total_tasks = Task.objects.filter(usuario=self.request.user, start_date__gte=today)
-
+            context['tasks'] = Task.objects.filter(usuario=self.request.user)
 
         context['tasks_today_count'] = tasks_today.count()
         context['tasks_week_count'] = tasks_week.count()
@@ -204,12 +205,6 @@ class MonthlyDataView(LoginRequiredMixin, View):
         return JsonResponse(monthly_data, safe=False)
     
 
-from django.http import JsonResponse
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Task
-from datetime import date, timedelta
-
 class WeeklyDataView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         month = int(request.GET.get('month', date.today().month))  # Obter o mês do parâmetro ou o mês atual
@@ -221,9 +216,13 @@ class WeeklyDataView(LoginRequiredMixin, View):
         # Verificar se o usuário é Discente
         user = request.user
         is_discente = user.groups.filter(name='Discente').exists()
-        tasks = Task.objects.filter(turma=user.turma) if is_discente and hasattr(user, 'turma') else Task.objects.all()
+        is_docente = user.groups.filter(name='Docente').exists()
 
-        # Filtrar eventos para o mês e ano especificados
+        if is_discente:
+            tasks = Task.objects.filter(turma=user.turma)
+        if is_docente:
+            tasks = Task.objects.filter(usuario=self.request.user)
+
         month_tasks = tasks.filter(start_date__year=year, start_date__month=month)
 
         # Contar eventos por semana

@@ -81,14 +81,23 @@ class CalendarView(TemplateView):
         user_turma = getattr(self.request.user, 'turma', None)
         context = super().get_context_data(**kwargs)
         is_discente = self.request.user.groups.filter(name='Discente').exists()
+        is_docente = self.request.user.groups.filter(name='Docente').exists()
         today = timezone.localdate()
+
         if is_discente and user_turma:
             events_today = Task.objects.filter(
                 turma=user_turma,
                 start_date__lte=today,
                 end_date__gte=today
             )
-        
+
+        elif is_docente:
+            events_today = Task.objects.filter(
+                usuario=self.request.user,
+                start_date__lte=today,
+                end_date__gte=today
+            )
+
         else:
             events_today = Task.objects.filter(
                 start_date__lte=today,
@@ -109,11 +118,14 @@ class TaskEventsView(View):
         turma_id = request.GET.get('turma_id', None)
         user_turma = request.user.turma
         is_discente = request.user.groups.filter(name='Discente').exists()
-
+        is_docente = self.request.user.groups.filter(name='Docente').exists()
+        
         if turma_id:
             tasks = Task.objects.filter(turma_id=turma_id)
         elif is_discente and user_turma:
             tasks = Task.objects.filter(turma=user_turma)
+        elif is_docente:
+            tasks = Task.objects.filter(usuario=self.request.user)
         else:
             tasks = Task.objects.all()
 
@@ -146,16 +158,18 @@ class EventCountView(LoginRequiredMixin,TemplateView):
         end_of_week = today + timedelta(days=(6 - today.weekday()))
 
         is_discente = user.groups.filter(name='Discente').exists()
-        user_turma = getattr(user, 'turma', None) if is_discente else None
+        is_docente = self.request.user.groups.filter(name='Docente').exists()
 
-        if is_discente and user_turma:
-            tasks_today = Task.objects.filter(turma=user_turma, start_date__lte=today, end_date__gte=today)
-            tasks_week = Task.objects.filter(turma=user_turma, start_date__gte=today, end_date__lte=end_of_week)
-            total_tasks = Task.objects.filter(turma=user_turma, start_date__gte=today)
-        else:
-            tasks_today = Task.objects.filter(start_date__lte=today, end_date__gte=today)
-            tasks_week = Task.objects.filter(start_date__gte=today, end_date__lte=end_of_week)
-            total_tasks = Task.objects.filter(start_date__gte=today)
+        if is_discente:
+            tasks_today = Task.objects.filter(turma=self.request.user.turma, start_date__lte=today, end_date__gte=today)
+            tasks_week = Task.objects.filter(turma=self.request.user.turma, start_date__gte=today, end_date__lte=end_of_week)
+            total_tasks = Task.objects.filter(turma=self.request.user.turma, start_date__gte=today)
+            
+        if is_docente:
+            tasks_today = Task.objects.filter(usuario=self.request.user, start_date__lte=today, end_date__gte=today)
+            tasks_week = Task.objects.filter(usuario=self.request.user, start_date__gte=today, end_date__lte=end_of_week)
+            total_tasks = Task.objects.filter(usuario=self.request.user, start_date__gte=today)
+
 
         context['tasks_today_count'] = tasks_today.count()
         context['tasks_week_count'] = tasks_week.count()

@@ -17,14 +17,6 @@
 
 <div id="calendar-container">
     <div class="col-md-3">
-        <h5>Calendário da Turma:</h5>
-        <select id="turma-select" class="form-select" aria-label="Selecionar Turma" style="width: 95%;">
-            <option value="" selected>Todas as turmas</option>
-            {% for turma in turmas %}
-                <option value="{{ turma.id }}">{{ turma.nome }}</option>
-            {% endfor %}
-        </select>
-        <hr class="thin-line mx-auto mt-4" style="width: 80%;">
         <h5>Eventos do dia:</h5>
         {% for event in events_today %}
             <div class="card mb-2" style="width: 95%;">
@@ -48,17 +40,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
-        var turmaSelect = document.getElementById('turma-select');
-
-        function fetchEvents(turmaId) {
-            var url = '/api/tasks/';
-            if (turmaId) {
-                url += '?turma_id=' + turmaId;
-            }
-
-            calendar.removeAllEvents();
-            calendar.refetchEvents();
-        }
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
@@ -70,19 +51,7 @@
                 day: 'Dia',
                 list: 'Agenda'
             },
-            events: function(fetchInfo, successCallback, failureCallback) {
-                var turmaId = turmaSelect.value;
-                var url = '/api/tasks/';
-
-                if (turmaId) {
-                    url += '?turma_id=' + turmaId;
-                }
-
-                fetch(url)
-                    .then(response => response.json())
-                    .then(events => successCallback(events))
-                    .catch(error => failureCallback(error));
-            },
+            events: '/api/tasks/',  // URL da API para carregar todos os eventos
             eventClick: function(info) {
                 var taskId = info.event.id;
                 window.location.href = '/task/' + taskId;
@@ -96,11 +65,6 @@
         });
 
         calendar.render();
-
-        turmaSelect.addEventListener('change', function() {
-            fetchEvents(turmaSelect.value);
-        });
     });
 </script>
-
 {% endblock %}

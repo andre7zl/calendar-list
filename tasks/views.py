@@ -4,7 +4,7 @@ from .forms import TaskForm
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import Task
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.views import View
@@ -202,3 +202,48 @@ class MonthlyDataView(LoginRequiredMixin, View):
                 monthly_data[month] += 1
 
         return JsonResponse(monthly_data, safe=False)
+    
+
+from django.http import JsonResponse
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Task
+from datetime import date, timedelta
+
+class WeeklyDataView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        month = int(request.GET.get('month', date.today().month))  # Obter o mês do parâmetro ou o mês atual
+        year = int(request.GET.get('year', date.today().year))  # Obter o ano do parâmetro ou o ano atual
+        
+        # Inicializar a lista de semanas
+        weekly_data = [0, 0, 0, 0]
+
+        # Verificar se o usuário é Discente
+        user = request.user
+        is_discente = user.groups.filter(name='Discente').exists()
+        tasks = Task.objects.filter(turma=user.turma) if is_discente and hasattr(user, 'turma') else Task.objects.all()
+
+        # Filtrar eventos para o mês e ano especificados
+        month_tasks = tasks.filter(start_date__year=year, start_date__month=month)
+
+        # Contar eventos por semana
+        for task in month_tasks:
+            week_number = (task.start_date.day - 1) // 7  # Obter a semana do mês (0 a 3)
+            weekly_data[week_number] += 1
+
+        return JsonResponse(weekly_data, safe=False)
+
+class TasksByTurmaView(LoginRequiredMixin, ListView):
+    model = Task
+    template_name = 'tasks/turma_tasks.html'
+    context_object_name = 'tasks'
+
+    def get_queryset(self):
+        user = self.request.user
+        user_turma = getattr(user, 'turma', None)
+        # Verifica se o usuário é "Discente" e tem uma turma associada
+        if user.groups.filter(name='Discente').exists() and user_turma:
+            return Task.objects.filter(turma=user_turma)
+        else:
+            # Se não for "Discente", exibe todas as tarefas
+            return Task.objects.all()

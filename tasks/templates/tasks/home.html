@@ -37,9 +37,7 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Gráfico de Barras -->
-        <div class="col-6 mt-2"> <!-- Menor margem superior -->
+        <div class="col-6 mt-2">
             <div class="card mb-3">
                 <div class="card-header">
                     <i class="fas fa-chart-bar me-1"></i>
@@ -49,6 +47,49 @@
                     <canvas id="eventsChart"></canvas>                    
                 </div>
 
+            </div>
+        </div>
+        <div class="col-6 mt-2">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-chart-area me-1"></i>
+                    Eventos no mês
+                </div>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card col-md-12">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    Eventos
+                </div>
+                <div class="card-body">
+                    <table id="datatablesSimple" class="table table-striped table-hover">
+                        <thead class="table">
+                            <tr>
+                                <th>Tarefa</th>
+                                <th>Data de Início</th>
+                                <th>Data de Término</th>
+                                <th>Turma</th>
+                                <th>Por:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr class="task-item">
+                                <td><a href="/task/{{ task.id }}" class="text-decoration-none text-dark">{{ task.title }}</a></td>
+                                <td style="color: #6c757d;" class="fs-6">{{ task.start_date }}</td>
+                                <td style="color: #6c757d;" class="fs-6">{{ task.end_date }}</td>
+                                <td style="color: #6c757d;" class="fs-6">{{ task.turma.nome }}</td>
+                                <td style="color: #6c757d;" class="fs-6">{{ task.usuario.username }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -95,6 +136,55 @@
                 });
             })
             .catch(error => console.error('Erro ao carregar os dados do gráfico:', error));
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+
+        // Inicializa o gráfico de área para exibir os dados do mês atual
+        const weeklyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+                datasets: [{
+                    label: 'Eventos por Semana',
+                    data: [],  // Dados serão carregados dinamicamente
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: true,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stepSize: 1,
+                        ticks: {
+                            precision: 0  // Mostra apenas números inteiros
+                        },
+                        title: {
+                            display: true,
+                            text: 'Quantidade de Eventos'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Função para carregar os dados do mês atual
+        function loadWeeklyData() {
+            fetch("{% url 'weekly-data' %}")
+                .then(response => response.json())
+                .then(data => {
+                    weeklyChart.data.datasets[0].data = data;
+                    weeklyChart.update();
+                })
+                .catch(error => console.error('Erro ao carregar dados do gráfico:', error));
+        }
+
+        // Carrega os dados do mês atual ao abrir a página
+        loadWeeklyData();
     });
 </script>
 {% endblock %}

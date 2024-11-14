@@ -66,7 +66,7 @@ class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin,  DeleteView):
     group_required = u"Docente"
     login_url = reverse_lazy('login')
     model = Task
-    template_name = 'tasks/deletetask.html'  # crie um template para confirmar a exclusão
+    template_name = 'tasks/deletetask.html'
     success_url = reverse_lazy('task-list')
 
     def delete(self, request, *args, **kwargs):
@@ -177,19 +177,13 @@ class EventCountView(LoginRequiredMixin,TemplateView):
         context['total_tasks_count'] = total_tasks.count()
 
         return context
-    
-from django.http import JsonResponse
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Task
 
-class MonthlyDataView(LoginRequiredMixin, View):
+class ChartYear(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        monthly_data = [0] * 12
+        year_data = [0] * 12
         user = request.user
         is_discente = user.groups.filter(name='Discente').exists()
         is_docente = user.groups.filter(name='Docente').exists()
-        # Filtra as tarefas da turma do usuário, se ele for Discente
         if is_discente and hasattr(user, 'turma'):
             tasks = Task.objects.filter(turma=user.turma)
         elif is_docente:
@@ -200,20 +194,18 @@ class MonthlyDataView(LoginRequiredMixin, View):
         for task in tasks:
             if task.start_date:
                 month = task.start_date.month - 1
-                monthly_data[month] += 1
+                year_data[month] += 1
 
-        return JsonResponse(monthly_data, safe=False)
+        return JsonResponse(year_data, safe=False)
     
 
-class WeeklyDataView(LoginRequiredMixin, View):
+class ChartMonth(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        month = int(request.GET.get('month', date.today().month))  # Obter o mês do parâmetro ou o mês atual
-        year = int(request.GET.get('year', date.today().year))  # Obter o ano do parâmetro ou o ano atual
+        month = int(request.GET.get('month', date.today().month))
+        year = int(request.GET.get('year', date.today().year))
         
-        # Inicializar a lista de semanas
-        weekly_data = [0, 0, 0, 0]
+        month_data = [0, 0, 0, 0]
 
-        # Verificar se o usuário é Discente
         user = request.user
         is_discente = user.groups.filter(name='Discente').exists()
         is_docente = user.groups.filter(name='Docente').exists()
@@ -224,25 +216,10 @@ class WeeklyDataView(LoginRequiredMixin, View):
             tasks = Task.objects.filter(usuario=self.request.user)
 
         month_tasks = tasks.filter(start_date__year=year, start_date__month=month)
-
-        # Contar eventos por semana
+        
         for task in month_tasks:
-            week_number = (task.start_date.day - 1) // 7  # Obter a semana do mês (0 a 3)
-            weekly_data[week_number] += 1
+            week_number = (task.start_date.day - 1) // 7
+            month_data[week_number] += 1
 
-        return JsonResponse(weekly_data, safe=False)
+        return JsonResponse(month_data, safe=False)
 
-class TasksByTurmaView(LoginRequiredMixin, ListView):
-    model = Task
-    template_name = 'tasks/turma_tasks.html'
-    context_object_name = 'tasks'
-
-    def get_queryset(self):
-        user = self.request.user
-        user_turma = getattr(user, 'turma', None)
-        # Verifica se o usuário é "Discente" e tem uma turma associada
-        if user.groups.filter(name='Discente').exists() and user_turma:
-            return Task.objects.filter(turma=user_turma)
-        else:
-            # Se não for "Discente", exibe todas as tarefas
-            return Task.objects.all()

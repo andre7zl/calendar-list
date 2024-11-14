@@ -176,3 +176,29 @@ class EventCountView(LoginRequiredMixin,TemplateView):
         context['total_tasks_count'] = total_tasks.count()
 
         return context
+    
+from django.http import JsonResponse
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Task
+
+class MonthlyDataView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        monthly_data = [0] * 12
+        user = request.user
+        is_discente = user.groups.filter(name='Discente').exists()
+        is_docente = user.groups.filter(name='Docente').exists()
+        # Filtra as tarefas da turma do usuário, se ele for Discente
+        if is_discente and hasattr(user, 'turma'):
+            tasks = Task.objects.filter(turma=user.turma)
+        elif is_docente:
+            tasks = Task.objects.filter(usuario=self.request.user)
+        else:
+            tasks = Task.objects.all()
+
+        for task in tasks:
+            if task.start_date:
+                month = task.start_date.month - 1
+                monthly_data[month] += 1
+
+        return JsonResponse(monthly_data, safe=False)

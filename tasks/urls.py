@@ -1,11 +1,12 @@
 from django.urls import path
 from . import views
-from .views import TaskListView, TaskDetailView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskEventsView, CalendarView, EventCountView
+from .views import TaskListView, TaskDetailView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskEventsView, CalendarView, EventCountView, MonthlyDataView
 
 urlpatterns = [
     path('dashboard/', EventCountView.as_view(), name='dashboard'),
     path('', CalendarView.as_view(), name='calendar'),
     path('list/', TaskListView.as_view(), name='task-list'),
+    path('monthly-data/', MonthlyDataView.as_view(), name='monthly-data'),
     path('task/<int:pk>/', TaskDetailView.as_view(), name='task-view'),  # Use pk para ID
     path('newtask/', TaskCreateView.as_view(), name='new-task'),
     path('list/edit/<int:pk>/', TaskUpdateView.as_view(), name='edit-task'),  # Use pk para ID

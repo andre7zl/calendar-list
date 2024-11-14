@@ -4,15 +4,15 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="mt-4">Olá, {{ user.username }}</h1>
-    <ol class="breadcrumb mb-4">
+    <h1 class="mt-1 mb-3">Olá, {{ user.username }}</h1> <!-- Menor margem superior -->
+    <ol class="breadcrumb mb-3">
         <li class="breadcrumb-item active">Dashboard</li>
     </ol>
     <div class="row">
         <div class="col-12">
             <div class="row">
                 <div class="col-4">
-                    <div class="card text-center bg-primary text-white mb-4">
+                    <div class="card text-center bg-primary text-white mb-3"> <!-- Menor margem inferior -->
                         <div class="card-body">Eventos do Dia</div>
                         <div class="card-footer d-flex align-items-center justify-content-center">
                             <h1>{{ tasks_today_count }}</h1>
@@ -20,7 +20,7 @@
                     </div>
                 </div>
                 <div class="col-4">
-                    <div class="card text-center bg-warning text-white mb-4">
+                    <div class="card text-center bg-warning text-white mb-3">
                         <div class="card-body">Eventos da Semana</div>
                         <div class="card-footer d-flex align-items-center justify-content-center">
                             <h1>{{ tasks_week_count }}</h1>
@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <div class="col-4">
-                    <div class="card bg-success text-center text-white mb-4">
+                    <div class="card bg-success text-center text-white mb-3">
                         <div class="card-body">Total de Eventos</div>
                         <div class="card-footer d-flex align-items-center justify-content-center">
                             <h1>{{ total_tasks_count }}</h1>
@@ -37,6 +37,64 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Gráfico de Barras -->
+        <div class="col-6 mt-2"> <!-- Menor margem superior -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Eventos no ano
+                </div>
+                <div class="p-3">
+                    <canvas id="eventsChart"></canvas>                    
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Realiza uma requisição para obter os dados JSON da nova view
+        fetch("{% url 'monthly-data' %}")
+            .then(response => response.json())
+            .then(monthlyData => {
+                // Configuração do gráfico de barras com Chart.js
+                const ctx = document.getElementById('eventsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+                        datasets: [{
+                            label: 'Eventos por Mês',
+                            data: monthlyData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                stepSize: 1,
+                                ticks: {
+                                    precision: 0
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade de Eventos'
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Erro ao carregar os dados do gráfico:', error));
+    });
+</script>
 {% endblock %}

@@ -1,5 +1,6 @@
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.models import User, Group
+from .models import CustomUser
 from django.urls import reverse_lazy
 from .forms import UsuarioForm
 from django.shortcuts import get_object_or_404
@@ -9,8 +10,6 @@ class CreateUser(CreateView):
     template_name = "register/register.html"
     form_class = UsuarioForm
     success_url = reverse_lazy('login')
-
-    
 
     def form_valid(self, form):
         turma = form.cleaned_data['turma']
@@ -27,4 +26,18 @@ class CreateUser(CreateView):
         context = super().get_context_data(*args, **kwargs)
         context['titulo'] = "Registro de novo usuário"
         context['botão'] = "Cadastrar"
+        return context
+
+class UserUpdate(UpdateView):
+    template_name = "registration/edituser.html"
+    model = CustomUser
+    fields = ['username', 'email', 'turma']
+    success_url = reverse_lazy("dashboard")
+
+    def get_object(self, queryset=None):
+        self.object = self.request.user
+        return self.object
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
         return context

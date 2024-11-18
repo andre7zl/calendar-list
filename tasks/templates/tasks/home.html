@@ -47,7 +47,7 @@
                   <h6 class="card-subtitle mb-2 text-body-secondary">Nome: {{ user.username }}</h6>
                   <h6 class="card-subtitle mb-2 text-body-secondary">Cargo: {{ user.cargo }}</h6>
                   <h6 class="card-subtitle mb-2 text-body-secondary">Turma: {{ user.perfilturma }} </h6>
-                  <a href="#" class="card-link">Editar Dados</a>
+                  <a href="{% url 'edituser' %}" class="card-link">Editar Dados</a>
                 </div>
               </div>
         </div>

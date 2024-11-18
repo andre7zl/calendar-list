@@ -197,29 +197,4 @@ class ChartYear(LoginRequiredMixin, View):
                 year_data[month] += 1
 
         return JsonResponse(year_data, safe=False)
-    
-
-class ChartMonth(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        month = int(request.GET.get('month', date.today().month))
-        year = int(request.GET.get('year', date.today().year))
-        
-        month_data = [0, 0, 0, 0]
-
-        user = request.user
-        is_discente = user.groups.filter(name='Discente').exists()
-        is_docente = user.groups.filter(name='Docente').exists()
-
-        if is_discente:
-            tasks = Task.objects.filter(turma=user.turma)
-        if is_docente:
-            tasks = Task.objects.filter(usuario=self.request.user)
-
-        month_tasks = tasks.filter(start_date__year=year, start_date__month=month)
-        
-        for task in month_tasks:
-            week_number = (task.start_date.day - 1) // 7
-            month_data[week_number] += 1
-
-        return JsonResponse(month_data, safe=False)
 

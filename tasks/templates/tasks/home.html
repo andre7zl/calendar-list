@@ -50,15 +50,6 @@
             </div>
         </div>
         <div class="col-6 mt-2">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <i class="fas fa-chart-area me-1"></i>
-                    Eventos no mês
-                </div>
-                <div class="chart-container">
-                    <canvas id="weeklyChart"></canvas>
-                </div>
-            </div>
         </div>
         <div class="col-12">
             <div class="card mt-4">
@@ -138,51 +129,6 @@
                 });
             })
             .catch(error => console.error('Erro ao carregar os dados do gráfico:', error));
-    });
-
-    document.addEventListener("DOMContentLoaded", function() {
-        const ctx = document.getElementById('weeklyChart').getContext('2d');
-        const weeklyChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-                datasets: [{
-                    label: 'Eventos por Semana',
-                    data: [],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    fill: true,
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        stepSize: 1,
-                        ticks: {
-                            precision: 0
-                        },
-                        title: {
-                            display: true,
-                            text: 'Quantidade de Eventos'
-                        }
-                    }
-                }
-            }
-        });
-
-        function loadWeeklyData() {
-            fetch("{% url 'chart-month' %}")
-                .then(response => response.json())
-                .then(data => {
-                    weeklyChart.data.datasets[0].data = data;
-                    weeklyChart.update();
-                })
-                .catch(error => console.error('Erro ao carregar dados do gráfico:', error));
-        }
-
-        loadWeeklyData();
     });
 
     

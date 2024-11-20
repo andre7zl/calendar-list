@@ -1,7 +1,7 @@
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from .models import Turma
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, DetailView, DeleteView
 from .forms import TurmaForm
 from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
@@ -45,3 +45,16 @@ class TurmaDeleteView(DeleteView):
             group.delete() 
 
         return super().delete(request, *args, **kwargs)
+    
+class TurmaMembersView(DetailView):
+    model = Turma
+    template_name = 'classes/listar_membros.html'
+    context_object_name = 'turma'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        turma = self.object
+        group_name = f"{turma.nome}_{turma.serie}_{turma.turno}_{turma.curso}"
+        group = Group.objects.filter(name=group_name).first()
+        context['members'] = group.user_set.all() if group else []
+        return context

@@ -3,7 +3,7 @@
 {% block title %}Lista de Turmas{% endblock %}
 
 {% block content %}
-<div class="offset-1 col-10 list-div">
+<div class="container-fluid">
     <h1>Lista de Turmas</h1>
     <div class="row mb-3">
         <!-- Botão de adicionar turma -->
@@ -33,7 +33,11 @@
                 <tbody>
                     {% for turma in turmas %}
                     <tr class="turma-item">
-                        <td><a href="/turma/{{ turma.id }}" class="text-decoration-none text-dark">{{ turma.nome }}</a></td>
+                        <td>
+                            <a href="{% url 'turma_members' turma.id %}" class="text-decoration-none text-dark">
+                                {{ turma.nome }}
+                            </a>
+                        </td>
                         <td style="color: #6c757d;">{{ turma.get_serie_display }}</td>
                         <td style="color: #6c757d;">{{ turma.get_turno_display }}</td>
                         <td style="color: #6c757d;">{{ turma.get_curso_display }}</td>

@@ -34,7 +34,6 @@ class Turma(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Criar ou obter um grupo correspondente à turma
         group_name = f"{self.nome}_{self.serie}_{self.turno}_{self.curso}"
         Group.objects.get_or_create(name=group_name)
 

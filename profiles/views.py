@@ -38,6 +38,17 @@ class UserUpdate(UpdateView):
         self.object = self.request.user
         return self.object
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        user = self.request.user
+    
+        if user.groups.filter(name='Docente').exists():
+            form.fields.pop('turma')
+        elif user.groups.filter(name='Discente').exists():
+            pass
+        
+        return form
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         return context

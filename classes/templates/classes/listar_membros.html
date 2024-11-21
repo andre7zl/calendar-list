@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h1>Membros da Turma: {{ turma.nome }}</h1>
-    <h5>Série: {{ turma.get_serie_display }}</h5>
-    <h5>Turno: {{ turma.get_turno_display }}</h5>
-    <h5>Curso: {{ turma.get_curso_display }}</h5>
-    
+    <h1>Membros</h1>
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item active">Turmas</li>
+        <li class="breadcrumb-item active">Membros - {{ turma.nome }}</li>
+    </ol>
     {% if members %}
         <div class="card col-md-12">
             <div class="card-header">

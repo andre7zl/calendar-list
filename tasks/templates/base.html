@@ -26,7 +26,7 @@
         <ul class="nav nav-pills flex-column mb-auto">
           <li>
             <a href="{% url 'task-list' %}" class="nav-link text-white">
-              Lista de Eventos
+              Eventos
             </a>
           </li>
           <li>
@@ -53,9 +53,7 @@
             <span class="me-2">{{ user.username }}</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-            <li><a class="dropdown-item" href="#">Novo projeto</a></li>
-            <li><a class="dropdown-item" href="#">Configurações</a></li>
-            <li><a class="dropdown-item" href="#">Perfil</a></li>
+            <li><a href="{% url 'edituser' %}" class="dropdown-item">Editar Dados</a> </li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <form action="{% url 'logout' %}" method="post" style="display: inline;">

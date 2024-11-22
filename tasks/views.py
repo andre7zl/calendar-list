@@ -80,24 +80,27 @@ class CalendarView(TemplateView):
     def get_context_data(self, **kwargs):
         user_turma = getattr(self.request.user, 'turma', None)
         context = super().get_context_data(**kwargs)
-        is_discente = self.request.user.groups.filter(name='Discente').exists()
-        is_docente = self.request.user.groups.filter(name='Docente').exists()
+        is_discente = self.request.user.groups.filter(name='Discente').exists() if self.request.user.is_authenticated else False
+        is_docente = self.request.user.groups.filter(name='Docente').exists() if self.request.user.is_authenticated else False
         today = timezone.localdate()
 
-        if is_discente and user_turma:
+        if not self.request.user.is_authenticated:
+            events_today = Task.objects.filter(
+                start_date__lte=today,
+                end_date__gte=today
+            )
+        elif is_discente and user_turma:
             events_today = Task.objects.filter(
                 turma=user_turma,
                 start_date__lte=today,
                 end_date__gte=today
             )
-
         elif is_docente:
             events_today = Task.objects.filter(
                 usuario=self.request.user,
                 start_date__lte=today,
                 end_date__gte=today
             )
-
         else:
             events_today = Task.objects.filter(
                 start_date__lte=today,
@@ -116,21 +119,23 @@ def home(request):
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
         turma_id = request.GET.get('turma_id', None)
-        user_turma = request.user.turma
-        is_discente = request.user.groups.filter(name='Discente').exists()
-        is_docente = self.request.user.groups.filter(name='Docente').exists()
-        
-        if turma_id:
+        user_turma = getattr(request.user, 'turma', None)
+        is_authenticated = request.user.is_authenticated
+        is_discente = request.user.groups.filter(name='Discente').exists() if is_authenticated else False
+        is_docente = request.user.groups.filter(name='Docente').exists() if is_authenticated else False
+
+        if not is_authenticated:
+            tasks = Task.objects.all()
+        elif turma_id:
             tasks = Task.objects.filter(turma_id=turma_id)
         elif is_discente and user_turma:
             tasks = Task.objects.filter(turma=user_turma)
         elif is_docente:
-            tasks = Task.objects.filter(usuario=self.request.user)
+            tasks = Task.objects.filter(usuario=request.user)
         else:
             tasks = Task.objects.all()
 
         events = []
-        
         for task in tasks:
             if task.start_date and task.start_time and task.end_date and task.end_time:
                 start_datetime = datetime.combine(task.start_date, task.start_time)
@@ -144,7 +149,6 @@ class TaskEventsView(View):
                 })
 
         return JsonResponse(events, safe=False)
-    
 
 class EventCountView(LoginRequiredMixin,TemplateView):
     login_url = reverse_lazy('login')

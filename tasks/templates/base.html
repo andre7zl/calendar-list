@@ -25,25 +25,23 @@
         <hr>
         <ul class="nav nav-pills flex-column mb-auto">
           <li>
-            <a href="{% url 'task-list' %}" class="nav-link text-white">
-              Eventos
-            </a>
-          </li>
-          <li>
             <a href="{% url 'calendar' %}" class="nav-link text-white">
               Calendário
             </a>
           </li>
+          {% if user.is_authenticated %}         
+          <li>
+            <a href="{% url 'task-list' %}" class="nav-link text-white">
+              Eventos
+            </a>
+          </li>
+
           <li>
             <a href="{% url 'lista-turmas' %}" class="nav-link text-white">
               Turmas
             </a>
           </li>
-          <li>
-            <a href="#" class="nav-link text-white">
-              Customers
-            </a>
-          </li>
+          {% endif %}
         </ul>
         <hr>
 

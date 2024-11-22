@@ -5,7 +5,9 @@ from .models import CustomUser
 from django.urls import reverse_lazy
 from .forms import UsuarioForm
 from django.shortcuts import get_object_or_404
-
+from django.shortcuts import redirect
+from django.contrib import messages
+from braces.views import LoginRequiredMixin, GroupRequiredMixin
 
 class CreateUser(CreateView):
     template_name = "register/register.html"
@@ -82,8 +84,24 @@ class UserUpdate(UpdateView):
         return super().form_valid(form)
 
 
-class UserDetailView(DetailView):
+class UserDetailView(GroupRequiredMixin, DetailView):
+    group_required = u"Docente"
+    login_url = reverse_lazy('login')
     model = CustomUser
     template_name = "registration/user_detail.html"
     context_object_name = "user_detail"
+
+    def post(self, request, *args, **kwargs):
+        user = self.get_object()  # Obtém o usuário a partir da URL
+        tutor_group, _ = Group.objects.get_or_create(name="Tutor")
+
+        if "toggle_tutor" in request.POST:
+            if user.groups.filter(name="Tutor").exists():
+                user.groups.remove(tutor_group)
+                messages.success(request, f"{user.username} não é mais Tutor.")
+            else:
+                user.groups.add(tutor_group)
+                messages.success(request, f"{user.username} agora é Tutor.")
+
+        return redirect('user_detail', pk=user.id)
 

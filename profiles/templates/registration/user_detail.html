@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalhes do Usuário{% endblock %}
-
 {% block content %}
 <div class="container-fluid">
     <h1>Detalhes do Usuário</h1>
+    <a href="{% url 'turma_members' user_detail.turma.id %}">
+        Voltar
+    </a>
     <ol class="breadcrumb mb-3">
         <li class="breadcrumb-item active">Detalhes do Usuário</li>
     </ol>
@@ -15,14 +16,49 @@
         <div class="card-body">
             <p><strong>Nome de Usuário:</strong> {{ user_detail.username }}</p>
             <p><strong>Email:</strong> {{ user_detail.email }}</p>
-            <p><strong>Cargo:</strong> 
+            <p><strong>Cargo:</strong> {{ user_detail.cargo }}</p>
+            <p><strong>Turma:</strong> {{ user_detail.perfilturma }}</p>
+
+            <!-- Botão para abrir o modal -->
+            <button type="button" class="btn {% if user_detail.cargo == "Aluno e Tutor" %}btn-danger{% else %}btn-success{% endif %}" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#confirmModal">
                 {% if user_detail.cargo == "Aluno e Tutor" %}
-                    <span class="badge text-bg-info">Aluno e Tutor</span>
+                    Remover como Tutor
                 {% elif user_detail.cargo == "Aluno" %}
-                    <span class="badge text-bg-secondary">Aluno</span>
+                    Tornar Tutor
                 {% endif %}
-            </p>
-            <p><strong>Turma:</strong> {{ user_detail.turma }}</p>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bootstrap -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                Você tem certeza que deseja 
+                {% if user_detail.cargo == "Aluno e Tutor" %}
+                    remover o status de Tutor?
+                {% elif user_detail.cargo == "Aluno" %}
+                    tornar este usuário um Tutor?
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <!-- Botão de confirmação -->
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" name="toggle_tutor" class="btn {% if user_detail.cargo == "Aluno e Tutor" %}btn-danger{% else %}btn-success{% endif %}">
+                        Confirmar
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

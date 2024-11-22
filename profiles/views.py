@@ -1,5 +1,6 @@
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.models import User, Group
+from django.views.generic.detail import DetailView
 from .models import CustomUser
 from django.urls import reverse_lazy
 from .forms import UsuarioForm
@@ -79,3 +80,10 @@ class UserUpdate(UpdateView):
 
         user.save()
         return super().form_valid(form)
+
+
+class UserDetailView(DetailView):
+    model = CustomUser
+    template_name = "registration/user_detail.html"
+    context_object_name = "user_detail"
+

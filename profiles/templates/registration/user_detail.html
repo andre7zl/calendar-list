@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Usuário{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>Detalhes do Usuário</h1>
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item active">Detalhes do Usuário</li>
+    </ol>
+    <div class="card col-md-8">
+        <div class="card-header">
+            <i class="fas fa-user me-1"></i> Informações do Usuário
+        </div>
+        <div class="card-body">
+            <p><strong>Nome de Usuário:</strong> {{ user_detail.username }}</p>
+            <p><strong>Email:</strong> {{ user_detail.email }}</p>
+            <p><strong>Cargo:</strong> 
+                {% if user_detail.cargo == "Aluno e Tutor" %}
+                    <span class="badge text-bg-info">Aluno e Tutor</span>
+                {% elif user_detail.cargo == "Aluno" %}
+                    <span class="badge text-bg-secondary">Aluno</span>
+                {% endif %}
+            </p>
+            <p><strong>Turma:</strong> {{ user_detail.turma }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -21,6 +21,7 @@
                         <tr>
                             <th>Nome de Usuário</th>
                             <th>Email</th>
+                            <th>cargo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,6 +29,13 @@
                         <tr>
                             <td>{{ member.username }}</td>
                             <td>{{ member.email }}</td>
+                            <td>
+                                {% if member.cargo == "Aluno e Tutor" %}
+                                    <span class="badge text-bg-info">Aluno e Tutor</span>
+                                {% elif member.cargo == "Aluno" %}
+                                    <span class="badge text-bg-secondary">Aluno</span>
+                                {% endif %}  
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

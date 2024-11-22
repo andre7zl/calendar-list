@@ -7,7 +7,7 @@
     <h1>{{task.title}}</h1>
     <p>Turma:</p><p>{{task.turma.nome}}</p>
     <p>{{task.description}}</p>
-    <p>Criado por:</p><p>{{task.usuario}}</p>
+    <p>Criado por:</p><p>{{task.usuario}} ({{ task.usuario.cargo }})</p>
     <p class="fs-6 text-body-secondary" >{{task.date}}</p>
 </div>
 {% endblock %}

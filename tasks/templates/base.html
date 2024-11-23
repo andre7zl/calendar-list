@@ -10,60 +10,90 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link href="{% static 'css/datatables.min.css' %}" rel="stylesheet">
+    <style>
+        /* Ajusta o conteúdo principal para telas menores */
+        .container {
+            padding: 15px;
+        }
 
+        /* Ajustes de navbar */
+        .navbar {
+            padding: 0.75rem 1rem;
+        }
 
+        .dropdown-menu {
+            min-width: 200px;
+        }
 
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .nav-link {
+                font-size: 0.9rem;
+            }
+
+            .dropdown-menu {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="d-flex">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <!-- Brand -->
+      <a class="navbar-brand" href="{% url 'dashboard' %}">
+        <i class="fas fa-home"></i> CEI
+      </a>
 
-      <!-- Sidebar -->
-      <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 200px; height: 100vh; position: fixed;">
-        <a href="{% url 'dashboard' %}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-          <span class="fs-4">CEI</span>
-        </a>
-        <hr>
-        <ul class="nav nav-pills flex-column mb-auto">
-          <li>
-            <a href="{% url 'calendar' %}" class="nav-link text-white">
-              Calendário
-            </a>
-          </li>
-          {% if user.is_authenticated %}         
-          <li>
-            <a href="{% url 'task-list' %}" class="nav-link text-white">
-              Eventos
-            </a>
-          </li>
+      <!-- Toggler button for mobile -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-          <li>
-            <a href="{% url 'lista-turmas' %}" class="nav-link text-white">
-              Turmas
+      <!-- Navbar links -->
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <!-- Home link -->
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'calendar' %}">
+              <i class="fas fa-calendar-alt"></i> Calendário
             </a>
           </li>
-          {% endif %}
+          <!-- Eventos link -->
+          <li class="nav-item mx-lg-3">
+            <a class="nav-link" aria-current="page" href="{% url 'task-list' %}">
+              <i class="fas fa-clipboard-list"></i> Eventos
+            </a>
+          </li>
+          <!-- Turmas Link -->
+          <li class="nav-item mx-lg-1">
+            <a class="nav-link" href="{% url 'lista-turmas' %}">
+              <i class="fas fa-users"></i> Turmas
+            </a>
+          </li>
         </ul>
-        <hr>
-
+        <!-- Dropdown Menu -->
         {% if user.is_authenticated %}
-        <div class="dropdown"></div>
-          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="me-2">{{ user.username }}</span>
+        <div class="dropdown">
+          <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ user.username }}
           </a>
-          <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-            <li><a href="{% url 'edituser' %}" class="dropdown-item">Editar Dados</a> </li>
+          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'edituser' %}">Editar Dados</a></li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                  {% csrf_token %}
-                  <button type="submit" class="dropdown-item" style="background: none; margin-left: 15px; border: none; padding: 0; cursor: pointer;">
-                      Sair
-                  </button>
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item" style="background: none; border: none; padding: 0; cursor: pointer;">
+                    Sair
+                </button>
               </form>
-            </li>         
+            </li>
           </ul>
         </div>
-
         {% else %}
         <li class="nav nav-pills flex-column">
           <a href="{% url 'login' %}" class="nav-link text-white">
@@ -72,30 +102,20 @@
         </li>
         {% endif %}
       </div>
-      
-      <div class="flex-grow-1" style="margin-left: 200px;">
-        
-        <div class="p-3">
-          {% block content %}
-          {% endblock %}
-        </div>
-      </div>
     </div>
-    
-    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>  
-    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'js/scripts.js' %}"></script>
-    <script src="{% static 'js/jquery.mask.min.js' %}"></script>  
-
-    {% block scripts %}
-    
-    {% endblock %}
-  </body>
-  
-  
-
-  
-  
-  
-
+  </nav>
+  <div class="container my-4">
+    <div class="col-12">
+      {% block content %}
+      {% endblock %} 
+    </div> 
+  </div>
+  <!-- Scripts -->
+  <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>  
+  <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/scripts.js' %}"></script>
+  <script src="{% static 'js/jquery.mask.min.js' %}"></script>  
+  {% block scripts %}
+  {% endblock %}
+</body>
 </html>

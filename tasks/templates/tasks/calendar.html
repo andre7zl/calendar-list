@@ -1,38 +1,84 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}home{% endblock %}
+{% block title %}Home{% endblock %}
+
 {% block content %}
 <style>
     #calendar-container {
         display: flex;
-        justify-content: center;  
-        height: 100%;            
+        flex-wrap: wrap; /* Torna flexível para dispositivos menores */
+        justify-content: center;
+        gap: 20px; /* Espaçamento entre os elementos */
     }
 
-    #calendar {      
-        width: 100%;            
-        overflow-y: auto;         
+    #calendar {
+        width: 100%;
+        min-height: 400px; /* Garante altura mínima em dispositivos menores */
+    }
+
+    @media (min-width: 992px) { /* Para telas grandes (largura >= 992px) */
+        #calendar-container {
+            flex-wrap: nowrap; /* Impede que os itens quebrem a linha */
+        }
+        #events-column {
+            max-width: 25%; /* Ocupa 25% da largura */
+        }
+        #calendar-column {
+            max-width: 75%; /* Ocupa 75% da largura */
+        }
+    }
+
+    .fc-header-toolbar {
+        display: flex;
+        flex-wrap: wrap; /* Permite quebra de linha */
+        justify-content: space-between; /* Distribui espaço uniformemente */
+        gap: 10px; /* Espaçamento entre botões */
+    }
+
+    .fc-toolbar-chunk {
+        display: flex;
+        flex-wrap: wrap; /* Botões se ajustam em telas menores */
+        gap: 10px;
+        justify-content: flex-start; /* Mantém alinhamento à esquerda */
+    }
+
+    @media (max-width: 576px) { /* Ajustes para telas pequenas */
+        .fc-header-toolbar {
+            flex-direction: row; /* Mantém botões em linha horizontal */
+            justify-content: space-between; /* Botões alinhados como em telas médias */
+            align-items: center; /* Alinha verticalmente */
+        }
+
+        .fc-toolbar-chunk {
+            justify-content: flex-start; /* Alinha botões à esquerda, como em telas maiores */
+        }
     }
 </style>
 
-<div id="calendar-container">
-    <div class="col-md-3">
-        <h5>Eventos do dia:</h5>
-        {% for event in events_today %}
-            <div class="card mb-2" style="width: 95%;">
-                <div class="card-body">
-                    <h5 class="card-title">{{ event.title }}</h5>
-                    <p class="card-text">{{ event.turma }}</p>                    
-                    <p class="card-text">{{ event.description }}</p>
-                    <a href="/task/{{ event.id }}" class="btn btn-primary">Ver Detalhes</a>
+
+<div class="container-fluid mt-4">
+    <div class="row" id="calendar-container">
+        <!-- Coluna de eventos do dia -->
+        <div class="col-md-3 mb-3" id="events-column">
+            <h5>Eventos do dia:</h5>
+            {% for event in events_today %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text"><strong>Turma:</strong> {{ event.turma }}</p>
+                        <p class="card-text"><strong>Descrição:</strong> {{ event.description }}</p>
+                        <a href="/task/{{ event.id }}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                    </div>
                 </div>
-            </div>
-        {% empty %}
-            <p>Não há eventos para hoje.</p>
-        {% endfor %}
-    </div>    
-    <div class="col-md-9">
-        <div id="calendar"></div>
+            {% empty %}
+                <p class="text-muted">Não há eventos para hoje.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Coluna do calendário -->
+        <div class="col-md-9" id="calendar-column">
+            <div id="calendar"></div>
+        </div>
     </div>
 </div>
 
@@ -62,9 +108,11 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
+            height: "auto", // Garante ajuste de altura automática
         });
 
         calendar.render();
     });
 </script>
+
 {% endblock %}

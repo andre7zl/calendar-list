@@ -4,55 +4,65 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h1>Membros</h1>
+    <h1 class="mb-3">Membros</h1>
     <ol class="breadcrumb mb-3">
-        <li class="breadcrumb-item active">Turmas</li>
+        <li class="breadcrumb-item">Turmas</li>
         <li class="breadcrumb-item active">Membros - {{ turma.nome }}</li>
     </ol>
+
     {% if members %}
-        <div class="card col-md-12">
+        <div class="card">
             <div class="card-header">
                 <i class="fas fa-user me-1"></i>
                 Membros
             </div>
             <div class="card-body">
-                <table id="membersTable" class="table table-striped table-hover">
-                    <thead class="table">
-                        <tr>
-                            <th>Nome de Usuário</th>
-                            <th>Email</th>
-                            <th>cargo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for member in members %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'user_detail' member.id %}" class="text-decoration-none text-dark">{{ member.username }}</a>
-                            </td>
-                            <td>{{ member.email }}</td>
-                            <td>
-                                {% if member.cargo == "Aluno e Tutor" %}
-                                    <span class="badge text-bg-info">Aluno e Tutor</span>
-                                {% elif member.cargo == "Aluno" %}
-                                    <span class="badge text-bg-secondary">Aluno</span>
-                                {% endif %}  
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <!-- Tabela responsiva -->
+                <div class="table-responsive">
+                    <table id="membersTable" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nome de Usuário</th>
+                                <th>Email</th>
+                                <th>Cargo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'user_detail' member.id %}" class="text-decoration-none text-dark">{{ member.username }}</a>
+                                </td>
+                                <td>{{ member.email }}</td>
+                                <td>
+                                    {% if member.cargo == "Aluno e Tutor" %}
+                                        <span class="badge text-bg-info">Aluno e Tutor</span>
+                                    {% elif member.cargo == "Aluno" %}
+                                        <span class="badge text-bg-secondary">Aluno</span>
+                                    {% else %}
+                                        <span class="badge text-bg-primary">{{ member.cargo }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     {% else %}
-        <p>Não há membros cadastrados nesta turma.</p>
+        <div class="alert alert-warning" role="alert">
+            Não há membros cadastrados nesta turma.
+        </div>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
+<!-- CSS para DataTables -->
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
 
+<!-- Scripts necessários -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
 

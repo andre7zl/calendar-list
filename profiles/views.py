@@ -58,30 +58,35 @@ class UserUpdate(UpdateView):
 
     def form_valid(self, form):
         user = form.instance
-
         original_user = CustomUser.objects.get(pk=user.pk)
         old_turma = original_user.turma
-        new_turma = form.cleaned_data['turma']
 
-        print(f"Old turma: {old_turma}")
-        print(f"New turma: {new_turma}")
+        if 'turma' in form.cleaned_data:
+            new_turma = form.cleaned_data['turma']
 
-        if old_turma != new_turma:
-            old_group_name = f"{old_turma.nome}_{old_turma.serie}_{old_turma.turno}_{old_turma.curso}"
-            old_group = Group.objects.filter(name=old_group_name).first()
-            if old_group:
-                print(f"Removing from group: {old_group.name}")
-                user.groups.remove(old_group)
-                
-            user.turma = new_turma
+            print(f"Old turma: {old_turma}")
+            print(f"New turma: {new_turma}")
 
-            new_group_name = f"{new_turma.nome}_{new_turma.serie}_{new_turma.turno}_{new_turma.curso}"
-            new_group, created = Group.objects.get_or_create(name=new_group_name)
-            print(f"Adding to group: {new_group.name}")
-            user.groups.add(new_group)
+            if old_turma != new_turma:
+                if old_turma:
+                    old_group_name = f"{old_turma.nome}_{old_turma.serie}_{old_turma.turno}_{old_turma.curso}"
+                    old_group = Group.objects.filter(name=old_group_name).first()
+                    if old_group:
+                        print(f"Removing from group: {old_group.name}")
+                        user.groups.remove(old_group)
+
+                user.turma = new_turma
+
+                new_group_name = f"{new_turma.nome}_{new_turma.serie}_{new_turma.turno}_{new_turma.curso}"
+                new_group, created = Group.objects.get_or_create(name=new_group_name)
+                print(f"Adding to group: {new_group.name}")
+                user.groups.add(new_group)
+        else:
+            print("Campo 'turma' não está presente no formulário para o usuário atual.")
 
         user.save()
         return super().form_valid(form)
+
 
 
 class UserDetailView(GroupRequiredMixin, DetailView):

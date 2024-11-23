@@ -62,6 +62,7 @@
               <i class="fas fa-calendar-alt"></i> Calendário
             </a>
           </li>
+            {% if user.is_authenticated %}
           <!-- Eventos link -->
           <li class="nav-item mx-lg-3">
             <a class="nav-link" aria-current="page" href="{% url 'task-list' %}">
@@ -76,15 +77,14 @@
           </li>
         </ul>
         <!-- Dropdown Menu -->
-        {% if user.is_authenticated %}
         <div class="dropdown">
           <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ user.username }}
           </a>
-          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+          <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="{% url 'edituser' %}">Editar Dados</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li>
+            <li class="dropdown-item">
               <form action="{% url 'logout' %}" method="post" style="display: inline;">
                 {% csrf_token %}
                 <button type="submit" class="dropdown-item" style="background: none; border: none; padding: 0; cursor: pointer;">

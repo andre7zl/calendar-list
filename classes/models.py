@@ -1,7 +1,6 @@
 from django.db import models
-
-from django.db import models
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 
 class Turma(models.Model):
     TURNO_CHOICES = [
@@ -37,3 +36,11 @@ class Turma(models.Model):
         group_name = f"{self.nome}_{self.serie}_{self.turno}_{self.curso}"
         Group.objects.get_or_create(name=group_name)
 
+    def delete(self, *args, **kwargs):
+        if self.customuser_set.exists():
+            raise ValidationError("Não é possível excluir a turma porque existem usuários associados a ela.")
+
+        if self.task_set.exists():
+            raise ValidationError("Não é possível excluir a turma porque existem tarefas associadas a ela.")
+
+        super().delete(*args, **kwargs)

@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 from .models import Turma
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
+from django.contrib import messages
 
 class TurmaCreateView(CreateView):
     model = Turma
@@ -31,19 +32,26 @@ class ListaTurmas(GroupRequiredMixin, LoginRequiredMixin, ListView):
     template_name = 'classes/lista_turmas.html'
     context_object_name = 'turmas'
 
+
 class TurmaDeleteView(DeleteView):
     model = Turma
-    template_name = 'classes/deletar_turma.html'  
+    template_name = 'classes/deletar_turma.html'
     success_url = reverse_lazy('lista-turmas')
 
     def post(self, request, *args, **kwargs):
         turma = self.get_object()
-        group_name = f"{turma.nome}_{turma.serie}_{turma.turno}_{turma.curso}"
-        
-        group = Group.objects.filter(name=group_name).first()  
-        if group:
-            group.delete() 
 
+        error_message = turma.can_delete()
+        if error_message:
+            messages.error(self.request, error_message)
+            return self.get(self.request, *args, **kwargs)
+
+        group_name = f"{turma.nome}_{turma.serie}_{turma.turno}_{turma.curso}"
+        group = Group.objects.filter(name=group_name).first()
+        if group:
+            group.delete()
+
+        messages.success(self.request, "Turma excluída com sucesso!")
         return super().delete(request, *args, **kwargs)
     
 class TurmaMembersView(DetailView):

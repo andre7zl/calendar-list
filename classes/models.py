@@ -23,7 +23,7 @@ class Turma(models.Model):
         ('4', '4º Ano'),
     ]
 
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=8, unique=True)
     serie = models.CharField(max_length=1, choices=SERIE_CHOICES)
     turno = models.CharField(max_length=5, choices=TURNO_CHOICES)
     curso = models.CharField(max_length=15, choices=CURSO_CHOICES)
@@ -36,11 +36,17 @@ class Turma(models.Model):
         group_name = f"{self.nome}_{self.serie}_{self.turno}_{self.curso}"
         Group.objects.get_or_create(name=group_name)
 
-    def delete(self, *args, **kwargs):
+    def can_delete(self):
         if self.customuser_set.exists():
-            raise ValidationError("Não é possível excluir a turma porque existem usuários associados a ela.")
-
+            return "Não é possível excluir a turma porque existem usuários associados a ela, verifique com os usuários e tente novamente"
         if self.task_set.exists():
-            raise ValidationError("Não é possível excluir a turma porque existem tarefas associadas a ela.")
+            return "Não é possível excluir a turma porque existem eventos associadas a ela, verifique os eventos e tente novamente"
+        return None
 
+
+    def delete(self, *args, **kwargs):
+        error_message = self.can_delete()
+        if error_message:
+            raise ValidationError(error_message)
         super().delete(*args, **kwargs)
+

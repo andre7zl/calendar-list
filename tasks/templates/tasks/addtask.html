@@ -10,8 +10,6 @@
         <h5 class="text-primary text-center mb-4">Adicionar Novo Evento</h5>
         <form method="post">
             {% csrf_token %}
-            
-            <!-- Exibe erros gerais (não relacionados a campos específicos) -->
             {% if form.non_field_errors %}
                 <div class="alert alert-danger">
                     <ul>
@@ -22,8 +20,8 @@
                 </div>
             {% endif %}
             
-            <div class="form-group">
-                <label for="title" class="font-weight-bold">Título:</label>
+            <div class="form-group mb-3">
+                <label for="id_title" class="font-weight-bold">Título:</label>
                 {{ form.title }}
                 {% if form.title.errors %}
                     <div class="text-danger">
@@ -36,8 +34,8 @@
                 {% endif %}
             </div>
             
-            <div class="form-group">
-                <label for="description" class="font-weight-bold">Descrição:</label>
+            <div class="form-group mb-3">
+                <label for="id_description" class="font-weight-bold">Descrição:</label>
                 {{ form.description }}
                 {% if form.description.errors %}
                     <div class="text-danger">
@@ -50,9 +48,16 @@
                 {% endif %}
             </div>
             
-            <div class="form-group">
-                <label for="turma" class="font-weight-bold">Turma:</label>
-                {{ form.turma }}
+            <div class="form-group mb-3">
+                <label for="id_turma" class="font-weight-bold">Turma:</label>
+                <select name="turma" id="id_turma" class="form-select">
+                    {% for turma in form.fields.turma.queryset %}
+                        <option value="{{ turma.id }}" {% if form.turma.value == turma.id|stringformat:"s" %}selected{% endif %}>
+                            {{ turma.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="text-body-secondary">Selecione a turma</p>
                 {% if form.turma.errors %}
                     <div class="text-danger">
                         <ul>
@@ -64,8 +69,8 @@
                 {% endif %}
             </div>
             
-            <div class="form-group">
-                <label for="start_date" class="font-weight-bold">Data de Início:</label>
+            <div class="form-group mb-3">
+                <label for="id_start_date" class="font-weight-bold">Data de Início:</label>
                 {{ form.start_date }}
                 {% if form.start_date.errors %}
                     <div class="text-danger">
@@ -78,8 +83,8 @@
                 {% endif %}
             </div>
             
-            <div class="form-group">
-                <label for="end_date" class="font-weight-bold">Data de Fim:</label>
+            <div class="form-group mb-3">
+                <label for="id_end_date" class="font-weight-bold">Data de Fim:</label>
                 {{ form.end_date }}
                 {% if form.end_date.errors %}
                     <div class="text-danger">
@@ -92,8 +97,8 @@
                 {% endif %}
             </div>
             
-            <div class="form-group">
-                <label for="start_time" class="font-weight-bold">Hora de Início:</label>
+            <div class="form-group mb-3">
+                <label for="id_start_time" class="font-weight-bold">Hora de Início:</label>
                 {{ form.start_time }}
                 {% if form.start_time.errors %}
                     <div class="text-danger">
@@ -106,8 +111,8 @@
                 {% endif %}
             </div>
             
-            <div class="form-group">
-                <label for="end_time" class="font-weight-bold">Hora de Fim:</label>
+            <div class="form-group mb-3">
+                <label for="id_end_time" class="font-weight-bold">Hora de Fim:</label>
                 {{ form.end_time }}
                 {% if form.end_time.errors %}
                     <div class="text-danger">
@@ -126,18 +131,17 @@
         </form>     
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script src="{% static 'js/jquery.mask.min.js' %}"></script>  
 
-    <script>
-        $(document).ready(function(){
-            $('#id_start_date').mask('00/00/0000');
-            $('#id_end_date').mask('00/00/0000');
-            $('#id_start_time').mask('00:00:00');
-            $('#id_end_time').mask('00:00:00');
-        })
-    </script>
+<script>
+    $(document).ready(function(){
+        $('#id_start_date').mask('00/00/0000');
+        $('#id_end_date').mask('00/00/0000');
+        $('#id_start_time').mask('00:00:00');
+        $('#id_end_time').mask('00:00:00');
+    });
+</script>
 {% endblock %}

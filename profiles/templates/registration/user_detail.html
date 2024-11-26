@@ -1,36 +1,49 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1>Detalhes do Usuário</h1>
-    <a href="{% url 'turma_members' user_detail.turma.id %}">
-        Voltar
-    </a>
-    <ol class="breadcrumb mb-3">
-        <li class="breadcrumb-item active">Turmas</li>
-        <li class="breadcrumb-item active">Membros - {{ user_detail.turma.nome }}</li>
-        <li class="breadcrumb-item active">Perfil - {{ user_detail.username }}</li>
-    </ol>
-    <div class="card col-md-8">
-        <div class="card-header">
-            <i class="fas fa-user me-1"></i> Informações do Usuário
-        </div>
-        <div class="card-body">
-            <p><strong>Nome de Usuário:</strong> {{ user_detail.username }}</p>
-            <p><strong>Email:</strong> {{ user_detail.email }}</p>
-            <p><strong>Cargo:</strong> {{ user_detail.cargo }}</p>
-            <p><strong>Turma:</strong> {{ user_detail.perfilturma }}</p>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 bg-light p-4 rounded shadow-sm position-relative">
+            <!-- Novo botão de voltar -->
+            <a href="{% url 'turma_members' user_detail.turma.id %}" 
+               class="btn btn-secondary position-absolute top-0 start-0 mt-2 ms-2">
+                Voltar
+            </a>
+
+            <h1 class="display-6 text-center mb-3">{{ user_detail.username }}</h1>
+
+            <div class="mb-3">
+                <p class="fw-bold mb-1">Nome de Usuário:</p>
+                <p class="text-muted mb-0">{{ user_detail.username }}</p>
+            </div>
+
+            <div class="mb-3">
+                <p class="fw-bold mb-1">Email:</p>
+                <p class="text-muted mb-0">{{ user_detail.email }}</p>
+            </div>
+
+            <div class="mb-3">
+                <p class="fw-bold mb-1">Cargo:</p>
+                <p class="text-muted mb-0">{{ user_detail.cargo }}</p>
+            </div>
+
+            <div class="mb-3">
+                <p class="fw-bold mb-1">Turma:</p>
+                <p class="text-muted mb-0">{{ user_detail.perfilturma }}</p>
+            </div>
 
             <!-- Botão para abrir o modal -->
-            <button type="button" class="btn {% if user_detail.cargo == "Aluno e Tutor" %}btn-danger{% else %}btn-success{% endif %}" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#confirmModal">
-                {% if user_detail.cargo == "Aluno e Tutor" %}
-                    Remover como Tutor
-                {% elif user_detail.cargo == "Aluno" %}
-                    Tornar Tutor
-                {% endif %}
-            </button>
+            <div class="mt-4">
+                <button type="button" class="btn {% if user_detail.cargo == "Aluno e Tutor" %}btn-danger{% else %}btn-success{% endif %}" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#confirmModal">
+                    {% if user_detail.cargo == "Aluno e Tutor" %}
+                        Remover como Tutor
+                    {% elif user_detail.cargo == "Aluno" %}
+                        Tornar Tutor
+                    {% endif %}
+                </button>
+            </div>
         </div>
     </div>
 </div>

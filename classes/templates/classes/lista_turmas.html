@@ -60,10 +60,7 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Inclua o CSS do DataTables -->
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-
-<!-- Inclua o jQuery e o DataTables JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
 
@@ -71,10 +68,22 @@
     window.addEventListener('DOMContentLoaded', event => {
         const turmaTable = document.getElementById('turmaTable');
         if (turmaTable) {
-            // Inicialize a tabela com paginação
             const dataTable = new simpleDatatables.DataTable(turmaTable, {
-                perPage: 5,  // Número de registros por página
-                perPageSelect: [5, 10, 15, 20],  // Opções de paginação
+                perPage: 5,
+                perPageSelect: [5, 10, 15, 20],
+                labels: {
+                    placeholder: "Buscar...",
+                    perPage: "Mostrar Registros",
+                    noRows: "Nenhum registro encontrado",
+                    info: "Mostrando {start} a {end} de {rows} registros",
+                    noResults: "Nenhum resultado correspondente",
+                    loading: "Carregando...",
+                    infoFiltered: " (filtrado de {rowsTotal} registros)",
+                    previous: "Anterior",
+                    next: "Próximo",
+                    first: "Primeiro",
+                    last: "Último",
+                }
             });
         }
     });

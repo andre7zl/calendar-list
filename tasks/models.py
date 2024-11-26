@@ -5,8 +5,8 @@ from profiles.models import CustomUser
 class Task(models.Model):
     id = models.BigAutoField(primary_key=True)
 
-    title = models.CharField(max_length=255)
-    description = models.TextField()
+    title = models.CharField(max_length=20)
+    description = models.TextField(max_length=150)
     start_date = models.DateField()
     end_date = models.DateField()
     total_subs = models.PositiveIntegerField(default=0)

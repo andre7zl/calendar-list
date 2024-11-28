@@ -62,17 +62,17 @@
               <i class="fas fa-calendar-alt"></i> Calendário
             </a>
           </li>
+          <!-- Turmas Link -->
+          <li class="nav-item mx-lg-1">
+            <a class="nav-link" href="{% url 'lista-turmas' %}">
+              <i class="fas fa-users"></i> Turmas
+            </a>
+          </li>
             {% if user.is_authenticated %}
           <!-- Eventos link -->
           <li class="nav-item mx-lg-3">
             <a class="nav-link" aria-current="page" href="{% url 'task-list' %}">
               <i class="fas fa-clipboard-list"></i> Eventos
-            </a>
-          </li>
-          <!-- Turmas Link -->
-          <li class="nav-item mx-lg-1">
-            <a class="nav-link" href="{% url 'lista-turmas' %}">
-              <i class="fas fa-users"></i> Turmas
             </a>
           </li>
         </ul>

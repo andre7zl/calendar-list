@@ -10,7 +10,9 @@ from .models import Turma
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from django.contrib import messages
 
-class TurmaCreateView(CreateView):
+class TurmaCreateView(GroupRequiredMixin, LoginRequiredMixin,  CreateView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
     model = Turma
     form_class = TurmaForm
     template_name = 'classes/cadastrar_turma.html'
@@ -25,15 +27,19 @@ class TurmaCreateView(CreateView):
         
         return response
 
-class ListaTurmas(GroupRequiredMixin, LoginRequiredMixin, ListView):
-    group_required = u"Docente"
-    login_url = reverse_lazy('login')
+class ListaTurmas(ListView):
     model = Turma
     template_name = 'classes/lista_turmas.html'
     context_object_name = 'turmas'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_admin'] = self.request.user.groups.filter(name="Administrador").exists()
+        return context
 
-class TurmaDeleteView(DeleteView):
+class TurmaDeleteView(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
     model = Turma
     template_name = 'classes/deletar_turma.html'
     success_url = reverse_lazy('lista-turmas')

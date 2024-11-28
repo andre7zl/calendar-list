@@ -68,15 +68,17 @@
               <i class="fas fa-users"></i> Turmas
             </a>
           </li>
-            {% if user.is_authenticated %}
+          {% if user.is_authenticated and not user_in_discente %}
           <!-- Eventos link -->
           <li class="nav-item mx-lg-3">
             <a class="nav-link" aria-current="page" href="{% url 'task-list' %}">
               <i class="fas fa-clipboard-list"></i> Eventos
             </a>
           </li>
+          {% endif %}
         </ul>
         <!-- Dropdown Menu -->
+        {% if user.is_authenticated %}
         <div class="dropdown">
           <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ user.username }}
@@ -106,6 +108,7 @@
   </nav>
   <div class="container-fluid px-5">
     <div class="col-12">
+      <p>User in Docente: {{ user_in_docente }}</p>
       {% block content %}
       {% endblock %} 
     </div> 

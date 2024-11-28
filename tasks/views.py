@@ -202,3 +202,7 @@ class ChartYear(LoginRequiredMixin, View):
 
         return JsonResponse(year_data, safe=False)
 
+def verificar_user(request):
+    user_in_docente = request.user.groups.filter(name="Docente").exists()
+    return render(request, 'base.html', {'user_in_docente': user_in_docente})
+

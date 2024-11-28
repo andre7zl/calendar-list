@@ -89,15 +89,15 @@ class UserUpdate(UpdateView):
 
 
 
-class UserDetailView(GroupRequiredMixin, DetailView):
-    group_required = u"Docente"
+class UserDetailView(GroupRequiredMixin, LoginRequiredMixin, DetailView):
+    group_required = [u"Docente", u"Administrador"]
     login_url = reverse_lazy('login')
     model = CustomUser
     template_name = "registration/user_detail.html"
     context_object_name = "user_detail"
 
     def post(self, request, *args, **kwargs):
-        user = self.get_object()  # Obtém o usuário a partir da URL
+        user = self.get_object()
         tutor_group, _ = Group.objects.get_or_create(name="Tutor")
 
         if "toggle_tutor" in request.POST:

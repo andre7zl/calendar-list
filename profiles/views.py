@@ -98,15 +98,19 @@ class UserDetailView(GroupRequiredMixin, LoginRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         user = self.get_object()
+        
         tutor_group, _ = Group.objects.get_or_create(name="Tutor")
-
+        discente_group, _ = Group.objects.get_or_create(name="Discente")
+        
         if "toggle_tutor" in request.POST:
             if user.groups.filter(name="Tutor").exists():
                 user.groups.remove(tutor_group)
-                messages.success(request, f"{user.username} não é mais Tutor.")
+                user.groups.add(discente_group)
+                messages.success(request, f"{user.username} não é mais Tutor")
             else:
                 user.groups.add(tutor_group)
-                messages.success(request, f"{user.username} agora é Tutor.")
-
+                user.groups.remove(discente_group)
+                messages.success(request, f"{user.username} agora é Tutor")
+        
         return redirect('user_detail', pk=user.id)
 

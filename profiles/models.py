@@ -19,7 +19,7 @@ class CustomUser(AbstractUser):
     
     @property
     def perfilturma(self):
-        if self.groups.filter(name="Discente").exists():
+        if self.groups.filter(name="Discente").exists() or self.groups.filter(name="Tutor").exists():
             return self.turma 
         elif self.groups.filter(name="Docente").exists():
             return "Voce é professor :D"

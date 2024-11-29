@@ -12,9 +12,11 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from django.views.generic import TemplateView
 from django.utils import timezone
 from classes.models import Turma
+from django.db.models import Q
+from django.utils.timezone import localdate
 
 class TaskListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
-    group_required = u"Docente"
+    group_required = [u"Docente", u"Tutor"]
     login_url = reverse_lazy('login')
     model = Task
     template_name = 'tasks/list.html'
@@ -32,7 +34,7 @@ class TaskDetailView(DetailView):
 
 
 class TaskCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
-    group_required = u"Docente"
+    group_required = [u"Docente", u"Tutor"]
     login_url = reverse_lazy('login')
     model = Task
     form_class = TaskForm
@@ -50,7 +52,7 @@ class TaskCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
 
 
 class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
-    group_required = u"Docente"
+    group_required = [u"Docente", u"Tutor"]
     login_url = reverse_lazy('login')
     model = Task
     form_class = TaskForm
@@ -63,7 +65,7 @@ class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
 
 
 class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin,  DeleteView):
-    group_required = u"Docente"
+    group_required = [u"Docente", u"Tutor"]
     login_url = reverse_lazy('login')
     model = Task
     template_name = 'tasks/deletetask.html'
@@ -74,18 +76,28 @@ class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin,  DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+
 class CalendarView(TemplateView):
     template_name = 'tasks/calendar.html'
 
     def get_context_data(self, **kwargs):
         user_turma = getattr(self.request.user, 'turma', None)
         context = super().get_context_data(**kwargs)
-        is_discente = self.request.user.groups.filter(name='Discente').exists() if self.request.user.is_authenticated else False
-        is_docente = self.request.user.groups.filter(name='Docente').exists() if self.request.user.is_authenticated else False
+
+        user_groups = self.request.user.groups.values_list('name', flat=True) if self.request.user.is_authenticated else []
+        is_tutor = 'Tutor' in user_groups
+        is_discente = 'Discente' in user_groups
+        is_docente = 'Docente' in user_groups
         today = timezone.localdate()
 
         if not self.request.user.is_authenticated:
             events_today = Task.objects.filter(
+                start_date__lte=today,
+                end_date__gte=today
+            )
+        elif is_tutor and user_turma:
+            events_today = Task.objects.filter(
+                Q(turma=user_turma) | Q(usuario=self.request.user),
                 start_date__lte=today,
                 end_date__gte=today
             )
@@ -106,7 +118,6 @@ class CalendarView(TemplateView):
                 start_date__lte=today,
                 end_date__gte=today
             )
-
         context['events_today'] = events_today
         context['turmas'] = Turma.objects.all()
         return context
@@ -115,26 +126,31 @@ def home(request):
     return render(request, 'tasks/home.html')
 
 
-
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
         turma_id = request.GET.get('turma_id', None)
         user_turma = getattr(request.user, 'turma', None)
         is_authenticated = request.user.is_authenticated
-        is_discente = request.user.groups.filter(name='Discente').exists() if is_authenticated else False
-        is_docente = request.user.groups.filter(name='Docente').exists() if is_authenticated else False
+
+        user_groups = request.user.groups.values_list('name', flat=True) if is_authenticated else []
+        is_tutor = 'Tutor' in user_groups
+        is_discente = 'Discente' in user_groups
+        is_docente = 'Docente' in user_groups
 
         if not is_authenticated:
             tasks = Task.objects.all()
         elif turma_id:
             tasks = Task.objects.filter(turma_id=turma_id)
+        elif is_tutor and user_turma:
+            tasks = Task.objects.filter(
+                Q(turma=user_turma) | Q(usuario=request.user)
+            )
         elif is_discente and user_turma:
             tasks = Task.objects.filter(turma=user_turma)
         elif is_docente:
             tasks = Task.objects.filter(usuario=request.user)
         else:
             tasks = Task.objects.all()
-
         events = []
         for task in tasks:
             if task.start_date and task.start_time and task.end_date and task.end_time:
@@ -150,31 +166,65 @@ class TaskEventsView(View):
 
         return JsonResponse(events, safe=False)
 
-class EventCountView(LoginRequiredMixin,TemplateView):
+
+
+class EventCountView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy('login')
     template_name = 'tasks/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        today = timezone.localdate()
+        today = localdate()
         start_of_week = today
         end_of_week = today + timedelta(days=(6 - today.weekday()))
 
-        is_discente = user.groups.filter(name='Discente').exists()
-        is_docente = self.request.user.groups.filter(name='Docente').exists()
+        user_groups = user.groups.values_list('name', flat=True)
+        is_tutor = 'Tutor' in user_groups
+        is_discente = 'Discente' in user_groups
+        is_docente = 'Docente' in user_groups
 
-        if is_discente:
-            tasks_today = Task.objects.filter(turma=self.request.user.turma, start_date__lte=today, end_date__gte=today)
-            tasks_week = Task.objects.filter(turma=self.request.user.turma, start_date__gte=today, end_date__lte=end_of_week)
-            total_tasks = Task.objects.filter(turma=self.request.user.turma, start_date__gte=today)
-            context['tasks'] = Task.objects.filter(turma=self.request.user.turma)
-            
-        if is_docente:
-            tasks_today = Task.objects.filter(usuario=self.request.user, start_date__lte=today, end_date__gte=today)
-            tasks_week = Task.objects.filter(usuario=self.request.user, start_date__gte=today, end_date__lte=end_of_week)
-            total_tasks = Task.objects.filter(usuario=self.request.user, start_date__gte=today)
-            context['tasks'] = Task.objects.filter(usuario=self.request.user)
+        if is_tutor and user.turma:
+            tasks_today = Task.objects.filter(
+                Q(turma=user.turma) | Q(usuario=user),
+                start_date__lte=today, end_date__gte=today
+            )
+            tasks_week = Task.objects.filter(
+                Q(turma=user.turma) | Q(usuario=user),
+                start_date__gte=today, end_date__lte=end_of_week
+            )
+            total_tasks = Task.objects.filter(
+                Q(turma=user.turma) | Q(usuario=user),
+                start_date__gte=today
+            )
+            context['tasks'] = Task.objects.filter(Q(turma=user.turma) | Q(usuario=user))
+        elif is_discente and user.turma:
+            tasks_today = Task.objects.filter(
+                turma=user.turma, start_date__lte=today, end_date__gte=today
+            )
+            tasks_week = Task.objects.filter(
+                turma=user.turma, start_date__gte=today, end_date__lte=end_of_week
+            )
+            total_tasks = Task.objects.filter(
+                turma=user.turma, start_date__gte=today
+            )
+            context['tasks'] = Task.objects.filter(turma=user.turma)
+        elif is_docente:
+            tasks_today = Task.objects.filter(
+                usuario=user, start_date__lte=today, end_date__gte=today
+            )
+            tasks_week = Task.objects.filter(
+                usuario=user, start_date__gte=today, end_date__lte=end_of_week
+            )
+            total_tasks = Task.objects.filter(
+                usuario=user, start_date__gte=today
+            )
+            context['tasks'] = Task.objects.filter(usuario=user)
+        else:
+            tasks_today = Task.objects.none()
+            tasks_week = Task.objects.none()
+            total_tasks = Task.objects.none()
+            context['tasks'] = Task.objects.none()
 
         context['tasks_today_count'] = tasks_today.count()
         context['tasks_week_count'] = tasks_week.count()
@@ -186,12 +236,20 @@ class ChartYear(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         year_data = [0] * 12
         user = request.user
-        is_discente = user.groups.filter(name='Discente').exists()
-        is_docente = user.groups.filter(name='Docente').exists()
-        if is_discente and hasattr(user, 'turma'):
+
+        user_groups = user.groups.values_list('name', flat=True) if user.is_authenticated else []
+        is_tutor = 'Tutor' in user_groups
+        is_discente = 'Discente' in user_groups
+        is_docente = 'Docente' in user_groups
+
+        if is_tutor and hasattr(user, 'turma'):
+            tasks = Task.objects.filter(
+                Q(turma=user.turma) | Q(usuario=user)
+            )
+        elif is_discente and hasattr(user, 'turma'):
             tasks = Task.objects.filter(turma=user.turma)
         elif is_docente:
-            tasks = Task.objects.filter(usuario=self.request.user)
+            tasks = Task.objects.filter(usuario=user)
         else:
             tasks = Task.objects.all()
 

@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from classes import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from .models import CustomUser
 
 User = get_user_model()
 
@@ -37,3 +38,20 @@ class UsuarioForm(UserCreationForm):
                 user.groups.add(new_group)
 
         return super().form_valid(form)
+    
+class ProfessorForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'password']
+        widgets = {
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Senha'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome de Usuário'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user

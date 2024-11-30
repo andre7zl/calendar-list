@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.contrib import messages
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
+from django.views.generic.list import ListView
 
 class CreateUser(CreateView):
     template_name = "register/register.html"
@@ -114,3 +115,88 @@ class UserDetailView(GroupRequiredMixin, LoginRequiredMixin, DetailView):
         
         return redirect('user_detail', pk=user.id)
 
+
+class DocenteListView(LoginRequiredMixin, ListView):
+    template_name = "registration/docentes_list.html"
+    model = CustomUser
+    context_object_name = "docentes"
+    login_url = reverse_lazy('login')
+
+    def get_queryset(self):
+        docente_group = Group.objects.filter(name="Docente").first()
+        if docente_group:
+            return CustomUser.objects.filter(groups=docente_group)
+        return CustomUser.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = "Lista de Professores"
+        return context
+
+from .forms import ProfessorForm
+
+class AddProfessorView(CreateView):
+    template_name = "registration/add_professor.html"
+    form_class = ProfessorForm
+    success_url = reverse_lazy('docentes_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        docente_group, created = Group.objects.get_or_create(name="Docente")
+        self.object.groups.add(docente_group)
+        self.object.save()
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = "Adicionar Professor"
+        context['botao'] = "Adicionar"
+        return context
+
+class DocenteDetailView(LoginRequiredMixin, DetailView):
+    model = CustomUser
+    template_name = "registration/detail_docente.html"
+    context_object_name = "docente"
+    login_url = reverse_lazy('login')
+
+    def get_queryset(self):
+        """
+        Limita a busca a usuários que pertencem ao grupo 'Docente'.
+        """
+        docente_group = Group.objects.filter(name="Docente").first()
+        if docente_group:
+            return CustomUser.objects.filter(groups=docente_group)
+        return CustomUser.objects.none()
+
+    def get_context_data(self, **kwargs):
+        """
+        Adiciona informações adicionais ao contexto, se necessário.
+        """
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f"Detalhes do Professor: {self.object.username}"
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """
+        Trata requisições POST, como a remoção de um professor.
+        """
+        docente = self.get_object()
+
+        if 'remove_professor' in request.POST:
+            try:
+                # Remove o usuário
+                docente.delete()
+
+                # Mensagem de sucesso
+                messages.success(request, f"O professor {docente.username} foi removido com sucesso!")
+            except Exception as e:
+                # Tratamento de erro
+                messages.error(request, f"Erro ao remover o professor: {str(e)}")
+
+            # Redireciona para a lista de docentes
+            return redirect('docentes_list')  # Substitua pela URL da lista de docentes
+
+        # Caso nenhuma ação seja reconhecida, redireciona para a página do docente
+        return redirect('docente_detail', pk=docente.pk)

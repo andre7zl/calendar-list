@@ -68,6 +68,11 @@
               <i class="fas fa-users"></i> Turmas
             </a>
           </li>
+          <li class="nav-item mx-lg-1">
+            <a class="nav-link" href="{% url 'user-list' %}">
+              <i class="fas fa-users"></i> Membros
+            </a>
+          </li>
           {% if user.is_authenticated and not user_in_discente %}
           <!-- Eventos link -->
           <li class="nav-item mx-lg-3">

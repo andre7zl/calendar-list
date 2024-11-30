@@ -24,8 +24,11 @@ class TaskListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     ordering = '-created_at'
 
     def get_queryset(self):
-        self.tasks = Task.objects.filter(usuario=self.request.user)
-        return self.tasks
+        user_groups = self.request.user.groups.values_list('name', flat=True)
+        if "Administrador" in user_groups:
+            return Task.objects.all()
+        return Task.objects.filter(usuario=self.request.user)
+
 
 class TaskDetailView(DetailView):
     model = Task
@@ -42,12 +45,8 @@ class TaskCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('task-list')
 
     def form_valid(self, form):
-
         form.instance.usuario = self.request.user
-
-        url =  super().form_valid(form)
-
-
+        url = super().form_valid(form)
         return url
 
 
@@ -64,7 +63,7 @@ class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin,  DeleteView):
+class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
     group_required = [u"Docente", u"Tutor"]
     login_url = reverse_lazy('login')
     model = Task
@@ -74,7 +73,6 @@ class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin,  DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.info(request, 'Tarefa deletada com sucesso.')
         return super().delete(request, *args, **kwargs)
-
 
 
 class CalendarView(TemplateView):
@@ -88,9 +86,15 @@ class CalendarView(TemplateView):
         is_tutor = 'Tutor' in user_groups
         is_discente = 'Discente' in user_groups
         is_docente = 'Docente' in user_groups
+        is_administrador = 'Administrador' in user_groups
         today = timezone.localdate()
 
-        if not self.request.user.is_authenticated:
+        if is_administrador:
+            events_today = Task.objects.filter(
+                start_date__lte=today,
+                end_date__gte=today
+            )
+        elif not self.request.user.is_authenticated:
             events_today = Task.objects.filter(
                 start_date__lte=today,
                 end_date__gte=today
@@ -122,22 +126,18 @@ class CalendarView(TemplateView):
         context['turmas'] = Turma.objects.all()
         return context
 
-def home(request):
-    return render(request, 'tasks/home.html')
-
 
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
         turma_id = request.GET.get('turma_id', None)
         user_turma = getattr(request.user, 'turma', None)
-        is_authenticated = request.user.is_authenticated
-
-        user_groups = request.user.groups.values_list('name', flat=True) if is_authenticated else []
+        user_groups = request.user.groups.values_list('name', flat=True) if request.user.is_authenticated else []
+        is_administrador = 'Administrador' in user_groups
         is_tutor = 'Tutor' in user_groups
         is_discente = 'Discente' in user_groups
         is_docente = 'Docente' in user_groups
 
-        if not is_authenticated:
+        if is_administrador:
             tasks = Task.objects.all()
         elif turma_id:
             tasks = Task.objects.filter(turma_id=turma_id)
@@ -151,6 +151,7 @@ class TaskEventsView(View):
             tasks = Task.objects.filter(usuario=request.user)
         else:
             tasks = Task.objects.all()
+
         events = []
         for task in tasks:
             if task.start_date and task.start_time and task.end_date and task.end_time:
@@ -167,7 +168,6 @@ class TaskEventsView(View):
         return JsonResponse(events, safe=False)
 
 
-
 class EventCountView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy('login')
     template_name = 'tasks/home.html'
@@ -178,13 +178,24 @@ class EventCountView(LoginRequiredMixin, TemplateView):
         today = localdate()
         start_of_week = today
         end_of_week = today + timedelta(days=(6 - today.weekday()))
-
         user_groups = user.groups.values_list('name', flat=True)
+        is_administrador = 'Administrador' in user_groups
         is_tutor = 'Tutor' in user_groups
         is_discente = 'Discente' in user_groups
         is_docente = 'Docente' in user_groups
 
-        if is_tutor and user.turma:
+        if is_administrador:
+            tasks_today = Task.objects.filter(
+                start_date__lte=today, end_date__gte=today
+            )
+            tasks_week = Task.objects.filter(
+                start_date__gte=today, end_date__lte=end_of_week
+            )
+            total_tasks = Task.objects.filter(
+                start_date__gte=today
+            )
+            context['tasks'] = Task.objects.all()
+        elif is_tutor and user.turma:
             tasks_today = Task.objects.filter(
                 Q(turma=user.turma) | Q(usuario=user),
                 start_date__lte=today, end_date__gte=today
@@ -232,17 +243,20 @@ class EventCountView(LoginRequiredMixin, TemplateView):
 
         return context
 
+
 class ChartYear(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         year_data = [0] * 12
         user = request.user
-
         user_groups = user.groups.values_list('name', flat=True) if user.is_authenticated else []
+        is_administrador = 'Administrador' in user_groups
         is_tutor = 'Tutor' in user_groups
         is_discente = 'Discente' in user_groups
         is_docente = 'Docente' in user_groups
 
-        if is_tutor and hasattr(user, 'turma'):
+        if is_administrador:
+            tasks = Task.objects.all()
+        elif is_tutor and hasattr(user, 'turma'):
             tasks = Task.objects.filter(
                 Q(turma=user.turma) | Q(usuario=user)
             )
@@ -251,14 +265,14 @@ class ChartYear(LoginRequiredMixin, View):
         elif is_docente:
             tasks = Task.objects.filter(usuario=user)
         else:
-            tasks = Task.objects.all()
+            tasks = Task.objects.none()
 
         for task in tasks:
             if task.start_date:
-                month = task.start_date.month - 1
-                year_data[month] += 1
+                year_data[task.start_date.month - 1] += 1
 
         return JsonResponse(year_data, safe=False)
+
 
 def verificar_user(request):
     user_in_docente = request.user.groups.filter(name="Docente").exists()

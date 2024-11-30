@@ -14,7 +14,7 @@ class Task(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
-    usuario = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
+    usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     turma = models.ForeignKey('classes.Turma', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

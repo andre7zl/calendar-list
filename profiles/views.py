@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from django.views.generic.list import ListView
+from .forms import ProfessorForm
 
 class CreateUser(CreateView):
     template_name = "register/register.html"
@@ -115,12 +116,12 @@ class UserDetailView(GroupRequiredMixin, LoginRequiredMixin, DetailView):
         
         return redirect('user_detail', pk=user.id)
 
+# PROFESSORES
 
-class DocenteListView(LoginRequiredMixin, ListView):
+class DocenteListView(ListView):
     template_name = "registration/docentes_list.html"
     model = CustomUser
     context_object_name = "docentes"
-    login_url = reverse_lazy('login')
 
     def get_queryset(self):
         docente_group = Group.objects.filter(name="Docente").first()
@@ -130,12 +131,14 @@ class DocenteListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['is_admin'] = self.request.user.groups.filter(name="Administrador").exists()
         context['titulo'] = "Lista de Professores"
         return context
 
-from .forms import ProfessorForm
 
-class AddProfessorView(CreateView):
+class AddProfessorView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
     template_name = "registration/add_professor.html"
     form_class = ProfessorForm
     success_url = reverse_lazy('docentes_list')
@@ -155,7 +158,9 @@ class AddProfessorView(CreateView):
         context['botao'] = "Adicionar"
         return context
 
-class DocenteDetailView(LoginRequiredMixin, DetailView):
+class DocenteDetailView(GroupRequiredMixin, LoginRequiredMixin, DetailView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
     model = CustomUser
     template_name = "registration/detail_docente.html"
     context_object_name = "docente"

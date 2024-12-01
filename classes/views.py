@@ -67,6 +67,7 @@ class TurmaMembersView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['is_admin'] = self.request.user.groups.filter(name="Administrador").exists()
         turma = self.object
         group_name = f"{turma.nome}_{turma.serie}_{turma.turno}_{turma.curso}"
         group = Group.objects.filter(name=group_name).first()

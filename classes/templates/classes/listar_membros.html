@@ -31,7 +31,9 @@
                             {% for member in members %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'user_detail' member.id %}" class="text-decoration-none text-dark">{{ member.username }}</a>
+                                    <a {% if is_admin %} href="{% url 'user_detail' member.id %}" {% endif %} class="text-decoration-none text-dark">
+                                        {{ member.username }}
+                                    </a>
                                 </td>
                                 <td>{{ member.email }}</td>
                                 <td>

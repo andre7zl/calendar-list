@@ -8,15 +8,15 @@
     <ol class="breadcrumb mb-3">
         <li class="breadcrumb-item active">Turmas</li>
     </ol>
+    {% if is_admin %}
     <div class="row mb-3">
-        <!-- Botão de adicionar turma -->
         <div class="col-12 col-sm-auto">
             <a id="add-link" href="{% url 'cadastrar_turma' %}" class="btn btn-primary d-flex align-items-center">
                 <i class="fas fa-plus me-2"></i> Adicionar Turma
             </a>
         </div>
     </div>
-
+    {% endif %}
     <div class="card">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>

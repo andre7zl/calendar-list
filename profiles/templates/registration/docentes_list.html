@@ -8,6 +8,7 @@
     <ol class="breadcrumb mb-3">
         <li class="breadcrumb-item active">Professores</li>
     </ol>
+    {% if is_admin %}
     <div class="row mb-3">
         <div class="col-12 col-sm-auto">
             <a href="{% url 'add_professor' %}" class="btn btn-success d-flex align-items-center">
@@ -15,7 +16,7 @@
             </a>
         </div>
     </div>
-
+    {% endif %}
     <div class="card">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
@@ -36,7 +37,7 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>
-                                <a href="{% url 'docente_detail' user.id %}" class="text-decoration-none text-dark">{{ user.username }}</a>
+                                <a {% if is_admin %} href="{% url 'docente_detail' user.id %}" {% endif %} class="text-decoration-none text-dark">{{ user.username }}</a>
                             </td>
                             <td>{{ user.email }}</td>
                         </tr>

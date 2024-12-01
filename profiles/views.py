@@ -167,41 +167,27 @@ class DocenteDetailView(GroupRequiredMixin, LoginRequiredMixin, DetailView):
     login_url = reverse_lazy('login')
 
     def get_queryset(self):
-        """
-        Limita a busca a usuários que pertencem ao grupo 'Docente'.
-        """
         docente_group = Group.objects.filter(name="Docente").first()
         if docente_group:
             return CustomUser.objects.filter(groups=docente_group)
         return CustomUser.objects.none()
 
     def get_context_data(self, **kwargs):
-        """
-        Adiciona informações adicionais ao contexto, se necessário.
-        """
         context = super().get_context_data(**kwargs)
         context['titulo'] = f"Detalhes do Professor: {self.object.username}"
         return context
 
     def post(self, request, *args, **kwargs):
-        """
-        Trata requisições POST, como a remoção de um professor.
-        """
         docente = self.get_object()
 
         if 'remove_professor' in request.POST:
             try:
-                # Remove o usuário
                 docente.delete()
 
-                # Mensagem de sucesso
                 messages.success(request, f"O professor {docente.username} foi removido com sucesso!")
             except Exception as e:
-                # Tratamento de erro
                 messages.error(request, f"Erro ao remover o professor: {str(e)}")
 
-            # Redireciona para a lista de docentes
-            return redirect('docentes_list')  # Substitua pela URL da lista de docentes
+            return redirect('docentes_list')
 
-        # Caso nenhuma ação seja reconhecida, redireciona para a página do docente
         return redirect('docente_detail', pk=docente.pk)

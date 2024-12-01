@@ -4,7 +4,6 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6 bg-light p-4 rounded shadow-sm position-relative">
-            <!-- Novo botão de voltar -->
             <a href="{% url 'turma_members' user_detail.turma.id %}" 
                class="btn btn-secondary position-absolute top-0 start-0 mt-2 ms-2">
                 Voltar
@@ -32,7 +31,6 @@
                 <p class="text-muted mb-0">{{ user_detail.perfilturma }}</p>
             </div>
 
-            <!-- Botão para abrir o modal -->
             <div class="mt-4">
                 <button type="button" class="btn {% if user_detail.cargo == "Aluno e Tutor" %}btn-danger{% else %}btn-success{% endif %}" 
                         data-bs-toggle="modal" 
@@ -48,7 +46,6 @@
     </div>
 </div>
 
-<!-- Modal Bootstrap -->
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -66,7 +63,6 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <!-- Botão de confirmação -->
                 <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" name="toggle_tutor" class="btn {% if user_detail.cargo == "Aluno e Tutor" %}btn-danger{% else %}btn-success{% endif %}">

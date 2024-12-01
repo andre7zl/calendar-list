@@ -38,11 +38,10 @@ class Turma(models.Model):
 
     def can_delete(self):
         if self.customuser_set.exists():
-            return "Não é possível excluir a turma porque existem usuários associados a ela, verifique com os usuários e tente novamente"
+            return "Não é possível excluir a turma porque existem usuários associados a ela. Verifique e tente novamente."
         if self.task_set.exists():
-            return "Não é possível excluir a turma porque existem eventos associadas a ela, verifique os eventos e tente novamente"
+            return "Não é possível excluir a turma porque existem eventos associados a ela. Verifique e tente novamente."
         return None
-
 
     def delete(self, *args, **kwargs):
         error_message = self.can_delete()

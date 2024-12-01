@@ -13,7 +13,7 @@ class Task(models.Model):
     end_time = models.TimeField()
 
     usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    turma = models.ForeignKey('classes.Turma', on_delete=models.CASCADE)
+    turma = models.ForeignKey('classes.Turma', on_delete=models.CASCADE,  related_name='task_set')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

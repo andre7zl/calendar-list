@@ -6,59 +6,58 @@
 <style>
     #calendar-container {
         display: flex;
-        flex-wrap: wrap; /* Torna flexível para dispositivos menores */
+        flex-wrap: wrap;
         justify-content: center;
-        gap: 20px; /* Espaçamento entre os elementos */
+        gap: 20px;
     }
 
     #calendar {
         width: 100%;
-        min-height: 400px; /* Garante altura mínima em dispositivos menores */
+        min-height: 400px; 
     }
 
-    @media (min-width: 992px) { /* Para telas grandes (largura >= 992px) */
+    @media (min-width: 992px) {
         #calendar-container {
-            flex-wrap: nowrap; /* Impede que os itens quebrem a linha */
+            flex-wrap: nowrap; 
         }
         #events-column {
-            max-width: 25%; /* Ocupa 25% da largura */
+            max-width: 25%; 
         }
         #calendar-column {
-            max-width: 75%; /* Ocupa 75% da largura */
+            max-width: 75%; 
         }
     }
 
     .fc-header-toolbar {
         display: flex;
-        flex-wrap: wrap; /* Permite quebra de linha */
-        justify-content: space-between; /* Distribui espaço uniformemente */
-        gap: 10px; /* Espaçamento entre botões */
+        flex-wrap: wrap;
+        justify-content: space-between; 
+        gap: 10px; 
     }
 
     .fc-toolbar-chunk {
         display: flex;
-        flex-wrap: wrap; /* Botões se ajustam em telas menores */
+        flex-wrap: wrap;
         gap: 10px;
-        justify-content: flex-start; /* Mantém alinhamento à esquerda */
+        justify-content: flex-start; 
     }
 
-    @media (max-width: 576px) { /* Ajustes para telas pequenas */
+    @media (max-width: 576px) {
         .fc-header-toolbar {
-            flex-direction: row; /* Mantém botões em linha horizontal */
-            justify-content: space-between; /* Botões alinhados como em telas médias */
-            align-items: center; /* Alinha verticalmente */
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .fc-toolbar-chunk {
-            justify-content: flex-start; /* Alinha botões à esquerda, como em telas maiores */
+            justify-content: flex-start;
         }
     }
 </style>
 
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4 mb-5">
     <div class="row" id="calendar-container">
-        <!-- Coluna de eventos do dia -->
         <div class="col-md-3 mb-3" id="events-column">
             <h5>Eventos do dia:</h5>
             {% for event in events_today %}
@@ -74,8 +73,6 @@
                 <p class="text-muted">Não há eventos para hoje.</p>
             {% endfor %}
         </div>
-
-        <!-- Coluna do calendário -->
         <div class="col-md-9" id="calendar-column">
             <div id="calendar"></div>
         </div>
@@ -97,7 +94,7 @@
                 day: 'Dia',
                 list: 'Agenda'
             },
-            events: '/api/tasks/',  // URL da API para carregar todos os eventos
+            events: '/api/tasks/', 
             eventClick: function(info) {
                 var taskId = info.event.id;
                 window.location.href = '/task/' + taskId;
@@ -108,7 +105,7 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-            height: "auto", // Garante ajuste de altura automática
+            height: "auto", 
         });
 
         calendar.render();

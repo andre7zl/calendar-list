@@ -11,29 +11,22 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link href="{% static 'css/style.min.css' %}" rel="stylesheet"/>
     <style>
-        /* Ajusta o conteúdo principal para telas menores */
         .container {
             padding: 15px;
         }
-
-        /* Ajustes de navbar */
         .navbar {
             padding: 0.75rem 1rem;
         }
-
         .dropdown-menu {
             min-width: 200px;
         }
-
         @media (max-width: 576px) {
             .navbar-brand {
                 font-size: 1.2rem;
             }
-
             .nav-link {
                 font-size: 0.9rem;
             }
-
             .dropdown-menu {
                 font-size: 0.9rem;
             }
@@ -43,26 +36,19 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <!-- Brand -->
       <a class="navbar-brand" href="{% url 'dashboard' %}">
         <i class="fas fa-home"></i> CEI
       </a>
-
-      <!-- Toggler button for mobile -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
-      <!-- Navbar links -->
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <!-- Home link -->
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="{% url 'calendar' %}">
               <i class="fas fa-calendar-alt"></i> Calendário
             </a>
           </li>
-          <!-- Turmas Link -->
           <li class="nav-item mx-lg-1">
             <a class="nav-link" href="{% url 'lista-turmas' %}">
               <i class="fas fa-users"></i> Turmas
@@ -74,7 +60,6 @@
             </a>
           </li>
           {% if user.is_authenticated and not user_in_discente %}
-          <!-- Eventos link -->
           <li class="nav-item mx-lg-3">
             <a class="nav-link" aria-current="page" href="{% url 'task-list' %}">
               <i class="fas fa-clipboard-list"></i> Eventos
@@ -82,7 +67,6 @@
           </li>
           {% endif %}
         </ul>
-        <!-- Dropdown Menu -->
         {% if user.is_authenticated %}
         <div class="dropdown">
           <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -117,8 +101,6 @@
       {% endblock %} 
     </div> 
   </div>
-  <!-- Scripts -->
-
 
   <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
   <script src="{% static 'js/simple-datatables.min.js' %}" crossorigin="anonymous"></script>

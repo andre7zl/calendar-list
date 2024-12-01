@@ -9,8 +9,6 @@ class Task(models.Model):
     description = models.TextField(max_length=150)
     start_date = models.DateField()
     end_date = models.DateField()
-    total_subs = models.PositiveIntegerField(default=0)
-    subs = models.PositiveIntegerField(default=0)
     start_time = models.TimeField()
     end_time = models.TimeField()
 

@@ -15,6 +15,8 @@ class CustomUser(AbstractUser):
             return "Aluno"
         elif self.groups.filter(name="Docente").exists():
             return "Professor"
+        elif self.groups.filter(name="Administrador").exists():
+            return "Administrador"
         return "Indefinido"
     
     @property
@@ -23,4 +25,6 @@ class CustomUser(AbstractUser):
             return self.turma 
         elif self.groups.filter(name="Docente").exists():
             return "Voce é professor :D"
+        elif self.groups.filter(name="Administrador").exists():
+            return "Voce é Administrador \o/"
         return "Indefinido"

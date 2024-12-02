@@ -13,7 +13,7 @@ class TaskForm(forms.ModelForm):
                 attrs={"class": "form-control", "placeholder": "Insira o título do evento"}
             ),
             "description": forms.Textarea(
-                attrs={"class": "form-control", "placeholder": "Insira a descrição do evento"}
+                attrs={"class": "form-control", "placeholder": "Insira a descrição do evento", "rows": 3 }
             ),
             "turma": forms.Select(
                 attrs={"class": "form-select", "aria-label": "Selecionar turma"}

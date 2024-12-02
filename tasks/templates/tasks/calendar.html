@@ -3,6 +3,57 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+<style>
+    #calendar-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    #calendar {
+        width: 100%;
+        min-height: 400px; 
+    }
+
+    @media (min-width: 992px) {
+        #calendar-container {
+            flex-wrap: nowrap; 
+        }
+        #events-column {
+            max-width: 25%; 
+        }
+        #calendar-column {
+            max-width: 75%; 
+        }
+    }
+
+    .fc-header-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between; 
+        gap: 10px; 
+    }
+
+    .fc-toolbar-chunk {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-start; 
+    }
+
+    @media (max-width: 576px) {
+        .fc-header-toolbar {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fc-toolbar-chunk {
+            justify-content: flex-start;
+        }
+    }
+</style>
 
 
 <div class="container-fluid mt-4 mb-5">
@@ -22,7 +73,7 @@
                 <p class="text-muted">Não há eventos para hoje.</p>
             {% endfor %}
         </div>
-        <div class="col-md-9">
+        <div class="col-md-9" id="calendar-column">
             <div id="calendar"></div>
         </div>
     </div>

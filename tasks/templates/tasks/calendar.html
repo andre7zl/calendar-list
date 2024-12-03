@@ -56,7 +56,7 @@
 </style>
 
 
-<div class="container-fluid mt-4 mb-5">
+<div class="container-fluid mt-4 mb-5 vh-100">
     <div class="row" id="calendar-container">
         <div class="col-md-3 mb-3" id="events-column">
             <h5>Eventos do dia:</h5>
@@ -99,6 +99,7 @@
                 var taskId = info.event.id;
                 window.location.href = '/task/' + taskId;
             },
+            eventColor: '#0b57d0',
             displayEventTime: true,
             headerToolbar: {
                 left: 'prev,next today',

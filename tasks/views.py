@@ -59,6 +59,14 @@ class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
     context_object_name = 'task'
     success_url = reverse_lazy('task-list')
 
+    def dispatch(self, request, *args, **kwargs):
+        task = self.get_object()
+        user = self.request.user
+        if task.usuario != user and not user.groups.filter(name="Administrador").exists():
+            messages.error(request, "Você não tem permissão para editar esta tarefa.")
+            return redirect('task-list')
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         return super().form_valid(form)
 
@@ -70,9 +78,18 @@ class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
     template_name = 'tasks/deletetask.html'
     success_url = reverse_lazy('task-list')
 
+    def dispatch(self, request, *args, **kwargs):
+        task = self.get_object()
+        user = self.request.user
+        if task.usuario != user and not user.groups.filter(name="Administrador").exists():
+            messages.error(request, "Você não tem permissão para excluir esta tarefa.")
+            return redirect('task-list')
+        return super().dispatch(request, *args, **kwargs)
+
     def delete(self, request, *args, **kwargs):
-        messages.info(request, 'Tarefa deletada com sucesso.')
+        messages.success(request, 'Tarefa deletada com sucesso.')
         return super().delete(request, *args, **kwargs)
+
 
 
 class CalendarView(TemplateView):

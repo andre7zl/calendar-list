@@ -32,7 +32,7 @@
                             {% for member in members %}
                             <tr>
                                 <td>
-                                    <a {% if is_admin %} href="{% url 'user_detail' member.id %}" {% endif %} class="text-decoration-none text-dark">
+                                    <a {% if is_servidor %} href="{% url 'user_detail' member.id %}" {% endif %} class="text-decoration-none text-dark">
                                         {{ member.username }}
                                     </a>
                                 </td>

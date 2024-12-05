@@ -47,7 +47,7 @@ class UserUpdate(UpdateView):
         form = super().get_form(form_class)
         user = self.request.user
     
-        if user.groups.filter(name='Docente').exists():
+        if user.groups.filter(name='Docente').exists() or user.groups.filter(name='Administrador').exists():
             form.fields.pop('turma')
         elif user.groups.filter(name='Discente').exists():
             pass

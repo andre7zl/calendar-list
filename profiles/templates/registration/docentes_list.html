@@ -8,8 +8,9 @@
 <div class="container-fluid">
     <h1 class="mb-3">{{ titulo }}</h1>
     <ol class="breadcrumb mb-3">
-        <li class="breadcrumb-item active">Professores</li>
+        <li class="breadcrumb-item active"><a href="{% url 'docentes_list' %}" class="text-decoration-none text-dark">Professores</a></li>
     </ol>
+
     {% if is_admin %}
     <div class="row mb-3">
         <div class="col-12 col-sm-auto">

@@ -77,6 +77,7 @@ class TurmaMembersView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_servidor'] = self.request.user.groups.filter(name="Administrador").exists() or self.request.user.groups.filter(name="Docente").exists()
+        context['is_admin'] = self.request.user.groups.filter(name="Administrador").exists()
         turma = self.object
         group_name = f"{turma.nome}_{turma.serie}_{turma.turno}_{turma.curso}"
         group = Group.objects.filter(name=group_name).first()
@@ -84,7 +85,10 @@ class TurmaMembersView(DetailView):
         return context
     
 
-class ExcluirContaView(View):
+class ExcluirContaView(GroupRequiredMixin, LoginRequiredMixin, View):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
+    
     def post(self, request, *args, **kwargs):
         user_id = request.POST.get('user_id')
         user = get_object_or_404(CustomUser, id=user_id)
@@ -95,6 +99,56 @@ class ExcluirContaView(View):
         
         return HttpResponseRedirect(reverse('turma_members', kwargs={'pk': kwargs.get('pk')}))
 
+class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
+    template_name = "registration/edituser.html"
+    model = CustomUser
+    fields = ['username', 'email', 'turma']
+    
+    def get_object(self, queryset=None):
+        user_id = self.kwargs.get('pk')
+        return get_object_or_404(CustomUser, pk=user_id)
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        
+        context['page_title'] = 'Editar Dados do Usuário'
+        return context
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        user = self.get_object()
+    
+        if user.groups.filter(name='Docente').exists():
+            form.fields.pop('turma')
+        return form
+
+    def form_valid(self, form):
+        user = form.instance
+        original_user = CustomUser.objects.get(pk=user.pk)
+        old_turma = original_user.turma
+
+        if 'turma' in form.cleaned_data:
+            new_turma = form.cleaned_data['turma']
+
+            if old_turma != new_turma:
+                if old_turma:
+                    old_group_name = f"{old_turma.nome}_{old_turma.serie}_{old_turma.turno}_{old_turma.curso}"
+                    old_group = Group.objects.filter(name=old_group_name).first()
+                    if old_group:
+                        user.groups.remove(old_group)
+
+                user.turma = new_turma
+
+                new_group_name = f"{new_turma.nome}_{new_turma.serie}_{new_turma.turno}_{new_turma.curso}"
+                new_group, created = Group.objects.get_or_create(name=new_group_name)
+                user.groups.add(new_group)
+
+        user.save()
+        return super().form_valid(form)
+
+    success_url = reverse_lazy('lista-turmas')
 
 class TurmaUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
     group_required = u"Administrador"

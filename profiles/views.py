@@ -56,6 +56,7 @@ class UserUpdate(UpdateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        context['page_title'] = 'Editar meus dados'
         return context
 
     def form_valid(self, form):

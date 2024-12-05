@@ -26,7 +26,7 @@
                                 <th>Nome de Usuário</th>
                                 <th>Email</th>
                                 <th>Cargo</th>
-                                {% if is_servidor %}
+                                {% if is_admin %}
                                 <th>Ações</th>
                                 {% endif %}
                             </tr>
@@ -49,17 +49,23 @@
                                         <span class="badge text-bg-primary">{{ member.cargo }}</span>
                                     {% endif %}
                                 </td>
-                                {% if is_servidor %}
-                                <td>
-                                    <button 
-                                        class="btn btn-danger btn-sm" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#confirmRemoveModal" 
-                                        data-member-id="{{ member.id }}" 
-                                        data-member-name="{{ member.username }}">
-                                        <i class="fas fa-trash-alt"></i> Excluir Conta
-                                    </button>
+                                {% if is_admin %}
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end">
+                                        <a href="{% url 'editar-usuario' member.id %}" class="text-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" 
+                                           class="text-danger me-2" 
+                                           data-bs-toggle="modal" 
+                                           data-bs-target="#confirmRemoveModal" 
+                                           data-member-id="{{ member.id }}" 
+                                           data-member-name="{{ member.username }}">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
                                 </td>
+                                                                                           
                                 {% endif %}
                             </tr>
                             {% endfor %}
@@ -75,7 +81,6 @@
     {% endif %}
 </div>
 
-<!-- Modal de confirmação -->
 <div class="modal fade" id="confirmRemoveModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -128,7 +133,6 @@
             });
         }
 
-        // Passar dados para o modal de confirmação
         const confirmRemoveModal = document.getElementById('confirmRemoveModal');
         confirmRemoveModal.addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;

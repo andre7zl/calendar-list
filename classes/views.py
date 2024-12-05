@@ -2,6 +2,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from .models import Turma
 from django.views.generic import ListView, CreateView, DetailView, DeleteView
+from django.views.generic.edit import UpdateView
 from .forms import TurmaForm
 from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
@@ -73,3 +74,27 @@ class TurmaMembersView(DetailView):
         group = Group.objects.filter(name=group_name).first()
         context['members'] = group.user_set.all() if group else []
         return context
+
+class TurmaUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
+    model = Turma
+    form_class = TurmaForm
+    template_name = 'classes/editar_turma.html'
+    success_url = reverse_lazy('lista-turmas')
+
+    def form_valid(self, form):
+        turma = self.get_object()
+        old_group_name = f"{turma.nome}_{turma.serie}_{turma.turno}_{turma.curso}"
+        
+        response = super().form_valid(form)
+        
+        new_group_name = f"{form.instance.nome}_{form.instance.serie}_{form.instance.turno}_{form.instance.curso}"
+        
+        if old_group_name != new_group_name:
+            group = Group.objects.filter(name=old_group_name).first()
+            if group:
+                group.name = new_group_name
+                group.save()
+        
+        return response

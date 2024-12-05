@@ -32,9 +32,21 @@ class Turma(models.Model):
         return f"{self.nome} - {self.serie}º {self.turno} ({self.curso})"
 
     def save(self, *args, **kwargs):
+        if self.pk:
+            turma_antiga = Turma.objects.get(pk=self.pk)
+            old_group_name = f"{turma_antiga.nome}_{turma_antiga.serie}_{turma_antiga.turno}_{turma_antiga.curso}"
+            new_group_name = f"{self.nome}_{self.serie}_{self.turno}_{self.curso}"
+
+            if old_group_name != new_group_name:
+                group = Group.objects.filter(name=old_group_name).first()
+                if group:
+                    group.name = new_group_name
+                    group.save()
+        else:
+            group_name = f"{self.nome}_{self.serie}_{self.turno}_{self.curso}"
+            Group.objects.get_or_create(name=group_name)
+
         super().save(*args, **kwargs)
-        group_name = f"{self.nome}_{self.serie}_{self.turno}_{self.curso}"
-        Group.objects.get_or_create(name=group_name)
 
     def can_delete(self):
         if self.customuser_set.exists():

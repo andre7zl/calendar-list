@@ -25,7 +25,14 @@
                 <p class="text-muted mb-0">{{ docente.cargo }}</p>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-4 d-flex justify-content-between">
+                <!-- Botão de Editar -->
+                <a href="{% url 'edit_professor' docente.id %}" 
+                   class="btn btn-primary">
+                    Editar Professor
+                </a>
+
+                <!-- Botão de Remover -->
                 <button type="button" 
                         class="btn btn-danger" 
                         data-bs-toggle="modal" 

@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from django.views.generic.list import ListView
-from .forms import ProfessorForm
+from .forms import ProfessorForm, ProfessorEditForm
 
 class CreateUser(CreateView):
     template_name = "register/register.html"
@@ -192,3 +192,27 @@ class DocenteDetailView(GroupRequiredMixin, LoginRequiredMixin, DetailView):
             return redirect('docentes_list')
 
         return redirect('docente_detail', pk=docente.pk)
+
+class EditProfessorView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+    group_required = u"Administrador"
+    login_url = reverse_lazy('login')
+    template_name = "registration/edit_professor.html"
+    model = CustomUser
+    form_class = ProfessorEditForm
+    context_object_name = "professor"
+    success_url = reverse_lazy('docentes_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f"Editar Dados do Professor: {self.object.username}"
+        context['botao'] = "Salvar Alterações"
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f"Os dados do professor {self.object.username} foram atualizados com sucesso!")
+        return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Houve um erro ao tentar atualizar os dados do professor. Verifique os campos e tente novamente.")
+        return super().form_invalid(form)

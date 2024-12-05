@@ -55,3 +55,16 @@ class ProfessorForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+    
+class ProfessorEditForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome de Usuário'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        return user
